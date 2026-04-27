@@ -17,7 +17,6 @@ fun DetailsScreen(navController: NavHostController) {
         topBar = {
             TopBar(
                 title = "Details",
-                canNavigateBack = true,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

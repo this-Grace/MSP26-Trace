@@ -13,14 +13,13 @@ import androidx.compose.runtime.Composable
 @Composable
 fun TopBar(
     title: String,
-    canNavigateBack: Boolean = false,
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: (() -> Unit)? = null
 ) {
     TopAppBar(
         title = { Text(title) },
         navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = onNavigateBack) {
+            onNavigateBack?.let { action ->
+                IconButton(onClick = action) {
                     Icon(
                         imageVector = Icons.Default.ArrowBackIosNew,
                         contentDescription = "Back"

@@ -56,7 +56,9 @@ fun HomeScreen(navController: NavHostController) {
             TopBar(title = "Home")
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate(Route.Details) }) {
+            FloatingActionButton(
+                onClick = { navController.navigate(Route.Details) }
+            ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Go to details")
             }
         }
