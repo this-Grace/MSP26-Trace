@@ -114,7 +114,11 @@ fun RegistrationScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(40.dp))
 
             Button(
-                onClick = { navController.navigate(Route.Home) },
+                onClick = { 
+                    navController.navigate(Route.Home) {
+                        popUpTo(Route.Registration) { inclusive = true }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -182,7 +186,9 @@ fun RegistrationScreen(navController: NavHostController) {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 ),
-                modifier = Modifier.clickable { navController.navigate(Route.Login) }
+                modifier = Modifier.clickable { 
+                    navController.popBackStack()
+                }
             )
         }
     }

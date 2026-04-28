@@ -130,7 +130,9 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     ),
-                    modifier = Modifier.clickable { navController.navigate(Route.Login) }
+                    modifier = Modifier.clickable { 
+                    navController.popBackStack()
+                }
                 )
             }
         }

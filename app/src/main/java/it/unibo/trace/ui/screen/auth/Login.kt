@@ -109,7 +109,11 @@ fun LoginScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { navController.navigate(Route.Home) },
+                onClick = { 
+                    navController.navigate(Route.Home) {
+                        popUpTo(Route.Login) { inclusive = true }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -177,7 +181,11 @@ fun LoginScreen(navController: NavHostController) {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 ),
-                modifier = Modifier.clickable { navController.navigate(Route.Registration) }
+                modifier = Modifier.clickable { 
+                    navController.navigate(Route.Registration) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }
