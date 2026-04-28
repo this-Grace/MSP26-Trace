@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,11 +15,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,18 +49,16 @@ fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    
+
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
-            modifier = Modifier
+            modifier = Modifiermsg
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -75,86 +75,69 @@ fun LoginScreen(navController: NavHostController) {
             InputField(
                 label = "EMAIL",
                 value = email,
-                onValueChange = { 
-                    email = it
-                    errorMessage = null
-                },
-                placeholder = "Enter your email",
+                onValueChange = { email = it },
+                placeholder = "Enter your email"
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Column(modifier = Modifier.fillMaxWidth()) {
-                InputField(
-                    label = "PASSWORD",
-                    value = password,
-                    onValueChange = { 
-                        password = it
-                        errorMessage = null
-                    },
-                    placeholder = "Enter your password",
-                    isPassword = true,
-                    passwordVisible = passwordVisible,
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
+            InputField(
+                label = "PASSWORD",
+                value = password,
+                onValueChange = { password = it },
+                placeholder = "Enter your password",
+                isPassword = true,
+                passwordVisible = passwordVisible,
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = null
+                        )
                     }
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        "Forgot Password?",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { navController.navigate(Route.ForgotPassword) }
-                    )
                 }
-            }
+            )
 
-            if (errorMessage != null) {
-                Text(
-                    text = errorMessage!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
+            Text(
+                text = "Forgot Password?",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 8.dp)
+                    .clickable { navController.navigate(Route.ForgotPassword) }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { 
+                onClick = {
+                    if (email.isBlank() || password.isBlank()) {
+                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
                     scope.launch {
-                        try {
+                        runCatching {
                             supabase.auth.signInWith(Email) {
                                 this.email = email
                                 this.password = password
                             }
+                        }.onSuccess {
                             navController.navigate(Route.Home) {
                                 popUpTo(Route.Login) { inclusive = true }
                             }
-                        } catch (e: Exception) {
-                            errorMessage = e.localizedMessage ?: "Login failed"
+                        }.onFailure { e ->
+                            val msg = when {
+                                e.message?.contains("invalid", ignoreCase = true) == true -> "Invalid email or password"
+                                else -> e.localizedMessage ?: "Login failed"
+                            }
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                         }
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
@@ -165,13 +148,12 @@ fun LoginScreen(navController: NavHostController) {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    modifier = Modifier.weight(1f).height(1.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp),
                     color = MaterialTheme.colorScheme.outlineVariant
                 ) {}
                 Text(
@@ -181,7 +163,9 @@ fun LoginScreen(navController: NavHostController) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Surface(
-                    modifier = Modifier.weight(1f).height(1.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp),
                     color = MaterialTheme.colorScheme.outlineVariant
                 ) {}
             }
@@ -189,46 +173,41 @@ fun LoginScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
-                onClick = { 
+                onClick = {
                     scope.launch {
-                        try {
-                            supabase.auth.signInWith(Github)
-                        } catch (e: Exception) {
-                            errorMessage = e.localizedMessage ?: "GitHub Login failed"
-                        }
+                        runCatching { supabase.auth.signInWith(Github) }
+                            .onFailure {
+                                Toast.makeText(context, "GitHub Login failed", Toast.LENGTH_LONG).show()
+                            }
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
                     "Sign in with GitHub",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            Text(
-                "New to TRACE? ",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Text(
-                "Sign Up",
-                style = MaterialTheme.typography.bodyMedium.copy(
+            Row {
+                Text(
+                    "New to TRACE? ",
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    "Sign Up",
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier.clickable { 
-                    navController.navigate(Route.Registration) {
-                        launchSingleTop = true
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.Registration)
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
