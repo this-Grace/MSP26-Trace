@@ -87,11 +87,19 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     }
                     scope.launch {
                         try {
-                            supabase.auth.resetPasswordForEmail(email)
-                            Toast.makeText(context, "Reset link sent to your email!", Toast.LENGTH_LONG).show()
+                            supabase.auth.resetPasswordForEmail(
+                                email,
+                                "it.unibo.trace://login-callback"
+                            )
+                            Toast.makeText(context, "Instructions sent! Please check your inbox.", Toast.LENGTH_LONG).show()
+                            navController.popBackStack()
                         } catch (e: Exception) {
-                            val error = e.localizedMessage ?: "Failed to send reset link"
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                            val msg = if (e.message?.contains("network", ignoreCase = true) == true) {
+                                "Network error, please check your connection"
+                            } else {
+                                "Failed to send reset link. Verify your email."
+                            }
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                         }
                     }
                 },

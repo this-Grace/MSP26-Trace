@@ -55,7 +55,7 @@ fun LoginScreen(navController: NavHostController) {
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
-            modifier = Modifiermsg
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp),
@@ -129,7 +129,8 @@ fun LoginScreen(navController: NavHostController) {
                         }.onFailure { e ->
                             val msg = when {
                                 e.message?.contains("invalid", ignoreCase = true) == true -> "Invalid email or password"
-                                else -> e.localizedMessage ?: "Login failed"
+                                e.message?.contains("network", ignoreCase = true) == true -> "Network error, please check your connection"
+                                else -> "Login failed. Please try again."
                             }
                             Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                         }

@@ -12,12 +12,14 @@ import it.unibo.trace.ui.screen.HomeScreen
 import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.LoginScreen
 import it.unibo.trace.ui.screen.auth.RegistrationScreen
+import it.unibo.trace.ui.screen.auth.ResetPasswordScreen
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
     @Serializable data object Login : Route
     @Serializable data object Registration : Route
     @Serializable data object ForgotPassword : Route
+    @Serializable data object ResetPassword : Route
     @Serializable data object Home : Route
 }
 
@@ -37,6 +39,9 @@ fun NavGraph(
         }
         composable<Route.ForgotPassword> {
             ForgotPasswordScreen(navController)
+        }
+        composable<Route.ResetPassword> {
+            ResetPasswordScreen(navController)
         }
         composable<Route.Home> {
             ProtectedRoute(navController) {
