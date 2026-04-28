@@ -1,9 +1,13 @@
 package it.unibo.trace.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import io.github.jan.supabase.auth.auth
+import it.unibo.trace.supabase
 import it.unibo.trace.ui.screen.HomeScreen
 import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.LoginScreen
@@ -19,12 +23,11 @@ sealed interface Route {
 
 @Composable
 fun NavGraph(
-    navController: NavHostController,
-    startDestination: Route = Route.Login
+    navController: NavHostController = rememberNavController()
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Route.Home
     ) {
         composable<Route.Login> {
             LoginScreen(navController)
@@ -36,8 +39,26 @@ fun NavGraph(
             ForgotPasswordScreen(navController)
         }
         composable<Route.Home> {
-            HomeScreen(navController)
+            ProtectedRoute(navController) {
+                HomeScreen(navController)
+            }
         }
     }
 }
 
+@Composable
+fun ProtectedRoute(
+    navController: NavHostController,
+    content: @Composable () -> Unit
+) {
+    val session = supabase.auth.currentSessionOrNull()
+    if (session == null) {
+        LaunchedEffect(Unit) {
+            navController.navigate(Route.Login) {
+                popUpTo(Route.Home) { inclusive = true }
+            }
+        }
+    } else {
+        content()
+    }
+}
