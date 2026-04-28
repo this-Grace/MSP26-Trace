@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,15 +33,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.Github
+import io.github.jan.supabase.auth.providers.builtin.Email
 import it.unibo.trace.R
+import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.components.InputField
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -66,7 +75,10 @@ fun LoginScreen(navController: NavHostController) {
             InputField(
                 label = "EMAIL",
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { 
+                    email = it
+                    errorMessage = null
+                },
                 placeholder = "Enter your email",
             )
 
@@ -76,7 +88,10 @@ fun LoginScreen(navController: NavHostController) {
                 InputField(
                     label = "PASSWORD",
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { 
+                        password = it
+                        errorMessage = null
+                    },
                     placeholder = "Enter your password",
                     isPassword = true,
                     passwordVisible = passwordVisible,
@@ -106,12 +121,31 @@ fun LoginScreen(navController: NavHostController) {
                 }
             }
 
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
                 onClick = { 
-                    navController.navigate(Route.Home) {
-                        popUpTo(Route.Login) { inclusive = true }
+                    scope.launch {
+                        try {
+                            supabase.auth.signInWith(Email) {
+                                this.email = email
+                                this.password = password
+                            }
+                            navController.navigate(Route.Home) {
+                                popUpTo(Route.Login) { inclusive = true }
+                            }
+                        } catch (e: Exception) {
+                            errorMessage = e.localizedMessage ?: "Login failed"
+                        }
                     }
                 },
                 modifier = Modifier
@@ -155,7 +189,15 @@ fun LoginScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
-                onClick = { /* TODO: Login GitHub */ },
+                onClick = { 
+                    scope.launch {
+                        try {
+                            supabase.auth.signInWith(Github)
+                        } catch (e: Exception) {
+                            errorMessage = e.localizedMessage ?: "GitHub Login failed"
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

@@ -7,10 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,16 +19,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import it.unibo.trace.data.TodoItem
 import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.components.TopBar
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -35,6 +39,8 @@ fun HomeScreen(navController: NavHostController) {
     var items by remember { mutableStateOf<List<TodoItem>>(listOf()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -57,9 +63,22 @@ fun HomeScreen(navController: NavHostController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Route.Details) }
+                onClick = { 
+                    scope.launch {
+                        try {
+                            supabase.auth.signOut()
+                            navController.navigate(Route.Login) {
+                                popUpTo(Route.Home) { inclusive = true }
+                            }
+                        } catch (e: Exception) {
+                            errorMessage = "Logout failed: ${e.localizedMessage}"
+                        }
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Go to details")
+                Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
             }
         }
     ) { innerPadding ->
@@ -78,7 +97,7 @@ fun HomeScreen(navController: NavHostController) {
                 Text(
                     text = errorMessage!!,
                     modifier = Modifier.padding(innerPadding).padding(16.dp),
-                    color = androidx.compose.ui.graphics.Color.Red
+                    color = MaterialTheme.colorScheme.error
                 )
             }
             else -> {

@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,13 +34,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.jan.supabase.auth.auth
+import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.components.InputField
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
+    
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -92,14 +100,45 @@ fun ForgotPasswordScreen(navController: NavHostController) {
             InputField(
                 label = "EMAIL ADDRESS",
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { 
+                    email = it
+                    errorMessage = null
+                    successMessage = null
+                },
                 placeholder = "example@email.com",
             )
+
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+            
+            if (successMessage != null) {
+                Text(
+                    text = successMessage!!,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { /* TODO: Send reset link */ },
+                onClick = { 
+                    scope.launch {
+                        try {
+                            supabase.auth.resetPasswordForEmail(email)
+                            successMessage = "Reset link sent to your email!"
+                        } catch (e: Exception) {
+                            errorMessage = e.localizedMessage ?: "Failed to send reset link"
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -131,8 +170,8 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                         color = MaterialTheme.colorScheme.primary
                     ),
                     modifier = Modifier.clickable { 
-                    navController.popBackStack()
-                }
+                        navController.popBackStack()
+                    }
                 )
             }
         }
