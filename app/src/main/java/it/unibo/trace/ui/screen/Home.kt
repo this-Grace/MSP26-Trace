@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import io.github.jan.supabase.auth.auth
@@ -36,6 +38,7 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
+    val context = LocalContext.current
     var items by remember { mutableStateOf<List<TodoItem>>(listOf()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -67,11 +70,16 @@ fun HomeScreen(navController: NavHostController) {
                     scope.launch {
                         try {
                             supabase.auth.signOut()
+                            Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
                             navController.navigate(Route.Login) {
                                 popUpTo(Route.Home) { inclusive = true }
                             }
                         } catch (e: Exception) {
-                            errorMessage = "Logout failed: ${e.localizedMessage}"
+                            Toast.makeText(
+                                context,
+                                "Logout failed: ${e.localizedMessage}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 },
