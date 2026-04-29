@@ -26,6 +26,9 @@ import it.unibo.trace.ui.viewmodel.ProfileViewModel
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
+import androidx.compose.material3.HorizontalDivider
+import it.unibo.trace.ui.composable.ThemeSelector
+
 @OptIn(kotlin.time.ExperimentalTime::class)
 @Composable
 fun ProfileScreen(
@@ -34,6 +37,7 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val user by viewModel.user.collectAsState()
+    val theme by viewModel.theme.collectAsState()
 
     val email = user?.email ?: "Not available"
     val loginType = user?.appMetadata?.get("provider")?.jsonPrimitive?.contentOrNull ?: "Unknown"
@@ -78,6 +82,16 @@ fun ProfileScreen(
             ProfileInfoItem(label = "Email", value = email)
             ProfileInfoItem(label = "Login Type", value = loginType.replaceFirstChar { it.uppercase() })
             ProfileInfoItem(label = "Last Login", value = lastLogin)
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            ThemeSelector(
+                selectedTheme = theme,
+                onThemeSelected = { viewModel.setTheme(it) }
+            )
         }
     }
 }
