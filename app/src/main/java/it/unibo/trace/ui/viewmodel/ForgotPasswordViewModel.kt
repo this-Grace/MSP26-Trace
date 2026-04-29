@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
-import it.unibo.trace.data.supabase
+import it.unibo.trace.data.supabase.supabase
 import kotlinx.coroutines.launch
 
 class ForgotPasswordViewModel : ViewModel() {

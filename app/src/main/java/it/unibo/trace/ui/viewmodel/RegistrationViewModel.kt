@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Github
 import io.github.jan.supabase.auth.providers.builtin.Email
-import it.unibo.trace.data.supabase
+import it.unibo.trace.data.supabase.supabase
 import kotlinx.coroutines.launch
 
 class RegistrationViewModel : ViewModel() {

@@ -7,9 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.from
-import it.unibo.trace.data.TodoItem
-import it.unibo.trace.data.supabase
+import it.unibo.trace.data.supabase.entities.TodoItem
+import it.unibo.trace.data.supabase.service.TodoService
+import it.unibo.trace.data.supabase.supabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -48,12 +48,7 @@ class HomeViewModel : ViewModel() {
                 }
 
                 val list = withContext(Dispatchers.IO) {
-                    supabase.from("Todos")
-                        .select {
-                            filter {
-                                eq("uid", user.id)
-                            }
-                        }.decodeList<TodoItem>()
+                    TodoService.getTodos(user.id)
                 }
                 items.clear()
                 items.addAll(list)
@@ -83,11 +78,7 @@ class HomeViewModel : ViewModel() {
     private suspend fun deleteTodo(todoId: Long) {
         try {
             withContext(Dispatchers.IO) {
-                supabase.from("Todos").delete {
-                    filter {
-                        eq("id", todoId)
-                    }
-                }
+                TodoService.deleteTodo(todoId)
             }
             withContext(Dispatchers.Main) {
                 items.removeAll { it.id == todoId }

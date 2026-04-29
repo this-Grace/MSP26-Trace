@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import it.unibo.trace.data.TodoItem
+import it.unibo.trace.data.supabase.entities.TodoItem
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.TopBar
 import it.unibo.trace.ui.viewmodel.HomeViewModel

@@ -6,9 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.from
-import it.unibo.trace.data.TodoItem
-import it.unibo.trace.data.supabase
+import it.unibo.trace.data.supabase.entities.TodoItem
+import it.unibo.trace.data.supabase.service.TodoService
+import it.unibo.trace.data.supabase.supabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,7 +46,7 @@ class AddTodoViewModel : ViewModel() {
                 )
 
                 withContext(Dispatchers.IO) {
-                    supabase.from("Todos").insert(newTodo)
+                    TodoService.insertTodo(newTodo)
                 }
                 _events.emit("Task created successfully!")
                 onSuccess()

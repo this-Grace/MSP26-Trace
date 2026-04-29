@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.user.UserInfo
 import it.unibo.trace.data.ThemeRepository
-import it.unibo.trace.data.supabase
+import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
