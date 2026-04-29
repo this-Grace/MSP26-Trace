@@ -1,12 +1,20 @@
 package it.unibo.trace.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.supabase
 import it.unibo.trace.ui.screen.HomeScreen
 import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
@@ -27,6 +35,16 @@ sealed interface Route {
 fun NavGraph(
     navController: NavHostController = rememberNavController()
 ) {
+    val sessionStatus by supabase.auth.sessionStatus.collectAsState()
+
+    LaunchedEffect(sessionStatus) {
+        if (sessionStatus is SessionStatus.Authenticated) {
+            navController.navigate(Route.Home) {
+                popUpTo(Route.Login) { inclusive = true }
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = Route.Home
@@ -56,14 +74,23 @@ fun ProtectedRoute(
     navController: NavHostController,
     content: @Composable () -> Unit
 ) {
-    val session = supabase.auth.currentSessionOrNull()
-    if (session == null) {
-        LaunchedEffect(Unit) {
-            navController.navigate(Route.Login) {
-                popUpTo(Route.Home) { inclusive = true }
+    val sessionStatus by supabase.auth.sessionStatus.collectAsState()
+
+    when (sessionStatus) {
+        is SessionStatus.Authenticated -> {
+            content()
+        }
+        is SessionStatus.NotAuthenticated -> {
+            LaunchedEffect(sessionStatus) {
+                navController.navigate(Route.Login) {
+                    popUpTo(Route.Home) { inclusive = true }
+                }
             }
         }
-    } else {
-        content()
+        else -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
     }
 }
