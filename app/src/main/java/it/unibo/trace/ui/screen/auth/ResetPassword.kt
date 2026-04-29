@@ -20,6 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,14 +32,36 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.InputField
-import it.unibo.trace.ui.viewmodel.ResetPasswordViewModel
+import it.unibo.trace.ui.viewmodel.auth.ResetPasswordEvent
+import it.unibo.trace.ui.viewmodel.auth.ResetPasswordViewModel
+import kotlinx.coroutines.flow.collectLatest
 
+/**
+ * Screen for setting a new password after a reset request.
+ */
 @Composable
 fun ResetPasswordScreen(
     navController: NavHostController,
     viewModel: ResetPasswordViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is ResetPasswordEvent.PasswordUpdated -> {
+                    Toast.makeText(context, "Password updated successfully!", Toast.LENGTH_LONG).show()
+                    navController.navigate(Route.Login) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+                is ResetPasswordEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
@@ -67,15 +92,15 @@ fun ResetPasswordScreen(
 
             InputField(
                 label = "NEW PASSWORD",
-                value = viewModel.password,
-                onValueChange = { viewModel.onPasswordChange(it) },
+                value = uiState.password,
+                onValueChange = { viewModel.updatePassword(it) },
                 placeholder = "Enter new password",
                 isPassword = true,
-                passwordVisible = viewModel.passwordVisible,
+                passwordVisible = uiState.isPasswordVisible,
                 trailingIcon = {
                     IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -86,15 +111,15 @@ fun ResetPasswordScreen(
 
             InputField(
                 label = "CONFIRM NEW PASSWORD",
-                value = viewModel.confirmPassword,
-                onValueChange = { viewModel.onConfirmPasswordChange(it) },
+                value = uiState.confirmPassword,
+                onValueChange = { viewModel.updateConfirmPassword(it) },
                 placeholder = "Confirm new password",
                 isPassword = true,
-                passwordVisible = viewModel.passwordVisible,
+                passwordVisible = uiState.isPasswordVisible,
                 trailingIcon = {
                     IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -104,26 +129,14 @@ fun ResetPasswordScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = {
-                    viewModel.updatePassword(
-                        onSuccess = {
-                            Toast.makeText(context, "Password updated successfully!", Toast.LENGTH_LONG).show()
-                            navController.navigate(Route.Login) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        },
-                        onError = { error ->
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                        }
-                    )
-                },
+                onClick = { viewModel.updatePassword() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = !viewModel.isLoading
+                enabled = !uiState.isLoading
             ) {
-                if (viewModel.isLoading) {
+                if (uiState.isLoading) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
                     Text(

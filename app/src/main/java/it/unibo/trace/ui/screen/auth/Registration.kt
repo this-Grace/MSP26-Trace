@@ -24,6 +24,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,14 +38,36 @@ import androidx.navigation.NavHostController
 import it.unibo.trace.R
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.InputField
-import it.unibo.trace.ui.viewmodel.RegistrationViewModel
+import it.unibo.trace.ui.viewmodel.auth.RegistrationEvent
+import it.unibo.trace.ui.viewmodel.auth.RegistrationViewModel
+import kotlinx.coroutines.flow.collectLatest
 
+/**
+ * Screen for new user registration.
+ */
 @Composable
 fun RegistrationScreen(
     navController: NavHostController,
     viewModel: RegistrationViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is RegistrationEvent.RegistrationSuccess -> {
+                    Toast.makeText(context, "Account created! Please login.", Toast.LENGTH_LONG).show()
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Registration) { inclusive = true }
+                    }
+                }
+                is RegistrationEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
@@ -65,8 +90,8 @@ fun RegistrationScreen(
 
             InputField(
                 label = "EMAIL",
-                value = viewModel.email,
-                onValueChange = { viewModel.onEmailChange(it) },
+                value = uiState.email,
+                onValueChange = { viewModel.updateEmail(it) },
                 placeholder = "Enter your email"
             )
 
@@ -74,15 +99,15 @@ fun RegistrationScreen(
 
             InputField(
                 label = "PASSWORD",
-                value = viewModel.password,
-                onValueChange = { viewModel.onPasswordChange(it) },
+                value = uiState.password,
+                onValueChange = { viewModel.updatePassword(it) },
                 placeholder = "Enter your password",
                 isPassword = true,
-                passwordVisible = viewModel.passwordVisible,
+                passwordVisible = uiState.isPasswordVisible,
                 trailingIcon = {
                     IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -93,15 +118,15 @@ fun RegistrationScreen(
 
             InputField(
                 label = "CONFIRM PASSWORD",
-                value = viewModel.confirmPassword,
-                onValueChange = { viewModel.onConfirmPasswordChange(it) },
+                value = uiState.confirmPassword,
+                onValueChange = { viewModel.updateConfirmPassword(it) },
                 placeholder = "Confirm your password",
                 isPassword = true,
-                passwordVisible = viewModel.passwordVisible,
+                passwordVisible = uiState.isPasswordVisible,
                 trailingIcon = {
                     IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -111,26 +136,14 @@ fun RegistrationScreen(
             Spacer(modifier = Modifier.height(40.dp))
 
             Button(
-                onClick = {
-                    viewModel.signUp(
-                        onSuccess = {
-                            Toast.makeText(context, "Account created! Please login.", Toast.LENGTH_LONG).show()
-                            navController.navigate(Route.Login) {
-                                popUpTo(Route.Registration) { inclusive = true }
-                            }
-                        },
-                        onError = { error ->
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                        }
-                    )
-                },
+                onClick = { viewModel.signUp() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = !viewModel.isLoading
+                enabled = !uiState.isLoading
             ) {
-                if (viewModel.isLoading) {
+                if (uiState.isLoading) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
                     Text(
@@ -167,13 +180,7 @@ fun RegistrationScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
-                onClick = {
-                    viewModel.signUpWithGithub(
-                        onError = { error ->
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                        }
-                    )
-                },
+                onClick = { viewModel.signUpWithGithub() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
