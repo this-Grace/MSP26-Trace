@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -12,18 +11,16 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import io.github.jan.supabase.auth.auth
 import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
+import it.unibo.trace.ui.components.ProfileInfoItem
 import it.unibo.trace.ui.components.TopBar
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.contentOrNull
@@ -85,22 +82,5 @@ fun ProfileScreen(navController: NavHostController) {
             ProfileInfoItem(label = "Login Type", value = loginType.replaceFirstChar { it.uppercase() })
             ProfileInfoItem(label = "Last Login", value = lastLogin)
         }
-    }
-}
-
-@Composable
-fun ProfileInfoItem(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
