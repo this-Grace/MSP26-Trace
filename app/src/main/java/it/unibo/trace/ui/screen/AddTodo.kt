@@ -1,40 +1,63 @@
 package it.unibo.trace.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.composable.InputField
 import it.unibo.trace.ui.composable.TopBar
+import it.unibo.trace.ui.viewmodel.AddTodoEvent
 import it.unibo.trace.ui.viewmodel.AddTodoViewModel
-import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.collectLatest
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+
+/**
+ * Screen for adding a new task to the todo list.
+ */
 @Composable
 fun AddTodoScreen(
     navController: NavHostController,
+    modifier: Modifier = Modifier,
     viewModel: AddTodoViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
 
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        viewModel.events.collect { message ->
-            android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is AddTodoEvent.SaveSuccess -> {
+                    navController.popBackStack()
+                }
+                is AddTodoEvent.ShowMessage -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopBar(
                 title = "New Task",
@@ -55,37 +78,38 @@ fun AddTodoScreen(
             )
 
             InputField(
-                value = viewModel.todoName,
-                onValueChange = { viewModel.todoName = it },
                 label = "Task Name",
+                value = uiState.todoName,
+                onValueChange = { viewModel.updateTodoName(it) },
                 placeholder = "e.g. Buy milk"
             )
 
-            if (viewModel.errorMessage != null) {
+            if (uiState.errorMessage != null) {
                 Text(
-                    text = viewModel.errorMessage!!,
+                    text = uiState.errorMessage!!,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
 
+            Spacer(modifier = Modifier.weight(1f))
+
             Button(
-                onClick = {
-                    viewModel.saveTodo {
-                        navController.popBackStack()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isSaving && viewModel.todoName.isNotBlank()
+                onClick = { viewModel.saveTodo() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !uiState.isSaving && uiState.todoName.isNotBlank()
             ) {
-                if (viewModel.isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
+                if (uiState.isSaving) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text("Add Task")
+                    Text(
+                        "Add Task",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

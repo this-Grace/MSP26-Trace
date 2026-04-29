@@ -1,8 +1,5 @@
 package it.unibo.trace.ui.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
@@ -10,52 +7,82 @@ import it.unibo.trace.data.supabase.entities.TodoItem
 import it.unibo.trace.data.supabase.service.TodoService
 import it.unibo.trace.data.supabase.supabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+/**
+ * UI State for the AddTodo screen.
+ */
+data class AddTodoUiState(
+    val todoName: String = "",
+    val isSaving: Boolean = false,
+    val errorMessage: String? = null
+)
 
+/**
+ * One-time events for the AddTodo screen.
+ */
+sealed class AddTodoEvent {
+    data object SaveSuccess : AddTodoEvent()
+    data class ShowMessage(val message: String) : AddTodoEvent()
+}
+
+/**
+ * ViewModel for handling the creation of new Todo tasks.
+ */
 class AddTodoViewModel : ViewModel() {
-    var todoName by mutableStateOf("")
-    var isSaving by mutableStateOf(false)
-    var errorMessage by mutableStateOf<String?>(null)
+    private val _uiState = MutableStateFlow(AddTodoUiState())
+    val uiState: StateFlow<AddTodoUiState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<String>()
+    private val _events = MutableSharedFlow<AddTodoEvent>()
     val events = _events.asSharedFlow()
 
-    fun saveTodo(onSuccess: () -> Unit) {
-        if (todoName.isBlank()) {
-            errorMessage = "Name cannot be empty"
+    fun updateTodoName(name: String) {
+        _uiState.update { it.copy(todoName = name, errorMessage = null) }
+    }
+
+    /**
+     * Saves a new Todo item to the database.
+     */
+    fun saveTodo() {
+        val name = _uiState.value.todoName.trim()
+        if (name.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Name cannot be empty") }
             return
         }
 
         viewModelScope.launch {
-            isSaving = true
-            errorMessage = null
+            _uiState.update { it.copy(isSaving = true) }
             try {
                 val user = supabase.auth.currentUserOrNull()
                 if (user == null) {
-                    errorMessage = "User not logged in"
+                    _uiState.update { it.copy(errorMessage = "User not logged in", isSaving = false) }
                     return@launch
                 }
 
                 val newTodo = TodoItem(
-                    name = todoName.trim(),
+                    name = name,
                     uid = user.id
                 )
 
                 withContext(Dispatchers.IO) {
                     TodoService.insertTodo(newTodo)
                 }
-                _events.emit("Task created successfully!")
-                onSuccess()
+                _events.emit(AddTodoEvent.ShowMessage("Task created successfully!"))
+                _events.emit(AddTodoEvent.SaveSuccess)
             } catch (e: Exception) {
                 e.printStackTrace()
-                errorMessage = e.localizedMessage ?: "Failed to save todo"
-                _events.emit("Error: ${e.localizedMessage}")
+                val msg = e.localizedMessage ?: "Failed to save todo"
+                _uiState.update { it.copy(errorMessage = msg) }
+                _events.emit(AddTodoEvent.ShowMessage("Error: $msg"))
             } finally {
-                isSaving = false
+                _uiState.update { it.copy(isSaving = false) }
             }
         }
     }

@@ -35,33 +35,35 @@ import kotlinx.coroutines.flow.collectLatest
  * @param navController Controller for navigating between screens.
  * @param viewModel ViewModel providing the screen's state and actions.
  */
-@Composable
-fun ProfileScreen(
-    navController: NavHostController,
-    viewModel: ProfileViewModel = viewModel()
-) {
-    val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsState()
-    val theme by viewModel.theme.collectAsState()
+ @Composable
+ fun ProfileScreen(
+     navController: NavHostController,
+     modifier: Modifier = Modifier,
+     viewModel: ProfileViewModel = viewModel()
+ ) {
+     val context = LocalContext.current
+     val uiState by viewModel.uiState.collectAsState()
+     val theme by viewModel.theme.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is ProfileEvent.LogoutSuccess -> {
-                    Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
-                    navController.navigate(Route.Login) {
-                        popUpTo(Route.Home) { inclusive = true }
-                    }
-                }
-                is ProfileEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
+     LaunchedEffect(Unit) {
+         viewModel.events.collectLatest { event ->
+             when (event) {
+                 is ProfileEvent.LogoutSuccess -> {
+                     Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
+                     navController.navigate(Route.Login) {
+                         popUpTo(Route.Home) { inclusive = true }
+                     }
+                 }
+                 is ProfileEvent.Error -> {
+                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                 }
+             }
+         }
+     }
 
-    Scaffold(
-        topBar = {
+     Scaffold(
+         modifier = modifier,
+         topBar = {
             TopBar(
                 title = "Profile",
                 onNavigateBack = { navController.popBackStack() }
