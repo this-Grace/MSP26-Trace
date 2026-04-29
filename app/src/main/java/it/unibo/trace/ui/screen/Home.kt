@@ -9,58 +9,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.from
-import it.unibo.trace.data.TodoItem
-import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.components.TopBar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import it.unibo.trace.ui.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(
+    navController: NavHostController,
+    viewModel: HomeViewModel = viewModel()
+) {
     val context = LocalContext.current
-    var items by remember { mutableStateOf<List<TodoItem>>(listOf()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            try {
-                items = supabase.from("Todos")
-                    .select().decodeList<TodoItem>()
-                errorMessage = null
-            } catch (e: Exception) {
-                e.printStackTrace()
-                errorMessage = "Connection error: ${e.localizedMessage}"
-            } finally {
-                isLoading = false
-            }
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -72,21 +42,17 @@ fun HomeScreen(navController: NavHostController) {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { 
-                    scope.launch {
-                        try {
-                            supabase.auth.signOut()
+                    viewModel.logout(
+                        onSuccess = {
                             Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
                             navController.navigate(Route.Login) {
                                 popUpTo(Route.Home) { inclusive = true }
                             }
-                        } catch (e: Exception) {
-                            Toast.makeText(
-                                context,
-                                "Logout failed: ${e.localizedMessage}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, "Logout failed: $error", Toast.LENGTH_SHORT).show()
                         }
-                    }
+                    )
                 },
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer
@@ -96,7 +62,7 @@ fun HomeScreen(navController: NavHostController) {
         }
     ) { innerPadding ->
         when {
-            isLoading -> {
+            viewModel.isLoading -> {
                 Box(
                     modifier = Modifier
                         .padding(innerPadding)
@@ -106,9 +72,9 @@ fun HomeScreen(navController: NavHostController) {
                     CircularProgressIndicator()
                 }
             }
-            errorMessage != null -> {
+            viewModel.errorMessage != null -> {
                 Text(
-                    text = errorMessage!!,
+                    text = viewModel.errorMessage!!,
                     modifier = Modifier.padding(innerPadding).padding(16.dp),
                     color = MaterialTheme.colorScheme.error
                 )
@@ -122,7 +88,7 @@ fun HomeScreen(navController: NavHostController) {
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(
-                        items,
+                        viewModel.items,
                         key = { item -> item.id },
                     ) { item ->
                         Text(

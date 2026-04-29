@@ -1,8 +1,9 @@
-package it.unibo.trace
+package it.unibo.trace.data
 
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
+import it.unibo.trace.BuildConfig
 
 val supabase = createSupabaseClient(
     supabaseUrl = BuildConfig.SUPABASE_URL,

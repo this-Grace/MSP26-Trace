@@ -14,28 +14,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import io.github.jan.supabase.auth.auth
-import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.components.TopBar
-import kotlinx.coroutines.launch
+import it.unibo.trace.ui.viewmodel.ProfileViewModel
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
+@OptIn(kotlin.time.ExperimentalTime::class)
 @Composable
-fun ProfileScreen(navController: NavHostController) {
+fun ProfileScreen(
+    navController: NavHostController,
+    viewModel: ProfileViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val user = supabase.auth.currentUserOrNull()
+    val user by viewModel.user.collectAsState()
 
     val email = user?.email ?: "Not available"
     val loginType = user?.appMetadata?.get("provider")?.jsonPrimitive?.contentOrNull ?: "Unknown"
@@ -51,21 +52,17 @@ fun ProfileScreen(navController: NavHostController) {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    scope.launch {
-                        try {
-                            supabase.auth.signOut()
+                    viewModel.logout(
+                        onSuccess = {
                             Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
                             navController.navigate(Route.Login) {
                                 popUpTo(Route.Home) { inclusive = true }
                             }
-                        } catch (e: Exception) {
-                            Toast.makeText(
-                                context,
-                                "Logout failed: ${e.localizedMessage}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, "Logout failed: $error", Toast.LENGTH_SHORT).show()
                         }
-                    }
+                    )
                 },
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer

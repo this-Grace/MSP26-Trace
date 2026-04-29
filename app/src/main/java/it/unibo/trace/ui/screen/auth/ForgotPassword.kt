@@ -12,32 +12,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import io.github.jan.supabase.auth.auth
-import it.unibo.trace.supabase
 import it.unibo.trace.ui.components.InputField
-import kotlinx.coroutines.launch
+import it.unibo.trace.ui.viewmodel.ForgotPasswordViewModel
 
 @Composable
-fun ForgotPasswordScreen(navController: NavHostController) {
-    var email by remember { mutableStateOf("") }
+fun ForgotPasswordScreen(
+    navController: NavHostController,
+    viewModel: ForgotPasswordViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
@@ -72,8 +68,8 @@ fun ForgotPasswordScreen(navController: NavHostController) {
 
             InputField(
                 label = "EMAIL ADDRESS",
-                value = email,
-                onValueChange = { email = it },
+                value = viewModel.email,
+                onValueChange = { viewModel.onEmailChange(it) },
                 placeholder = "example@email.com",
             )
 
@@ -81,38 +77,31 @@ fun ForgotPasswordScreen(navController: NavHostController) {
 
             Button(
                 onClick = {
-                    if (email.isBlank()) {
-                        Toast.makeText(context, "Please enter your email", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    scope.launch {
-                        try {
-                            supabase.auth.resetPasswordForEmail(
-                                email,
-                                "it.unibo.trace://login-callback"
-                            )
+                    viewModel.sendResetLink(
+                        onSuccess = {
                             Toast.makeText(context, "Instructions sent! Please check your inbox.", Toast.LENGTH_LONG).show()
                             navController.popBackStack()
-                        } catch (e: Exception) {
-                            val msg = if (e.message?.contains("network", ignoreCase = true) == true) {
-                                "Network error, please check your connection"
-                            } else {
-                                "Failed to send reset link. Verify your email."
-                            }
-                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                         }
-                    }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = !viewModel.isLoading
             ) {
-                Text(
-                    "Send Reset Link",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text(
+                        "Send Reset Link",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))

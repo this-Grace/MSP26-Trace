@@ -13,37 +13,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import io.github.jan.supabase.auth.auth
-import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.components.InputField
-import kotlinx.coroutines.launch
+import it.unibo.trace.ui.viewmodel.ResetPasswordViewModel
 
 @Composable
-fun ResetPasswordScreen(navController: NavHostController) {
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    
+fun ResetPasswordScreen(
+    navController: NavHostController,
+    viewModel: ResetPasswordViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
@@ -74,15 +67,15 @@ fun ResetPasswordScreen(navController: NavHostController) {
 
             InputField(
                 label = "NEW PASSWORD",
-                value = password,
-                onValueChange = { password = it },
+                value = viewModel.password,
+                onValueChange = { viewModel.onPasswordChange(it) },
                 placeholder = "Enter new password",
                 isPassword = true,
-                passwordVisible = passwordVisible,
+                passwordVisible = viewModel.passwordVisible,
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -93,15 +86,15 @@ fun ResetPasswordScreen(navController: NavHostController) {
 
             InputField(
                 label = "CONFIRM NEW PASSWORD",
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                value = viewModel.confirmPassword,
+                onValueChange = { viewModel.onConfirmPasswordChange(it) },
                 placeholder = "Confirm new password",
                 isPassword = true,
-                passwordVisible = passwordVisible,
+                passwordVisible = viewModel.passwordVisible,
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -112,39 +105,33 @@ fun ResetPasswordScreen(navController: NavHostController) {
 
             Button(
                 onClick = {
-                    if (password.isBlank() || confirmPassword.isBlank()) {
-                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    if (password != confirmPassword) {
-                        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    scope.launch {
-                        runCatching {
-                            supabase.auth.updateUser {
-                                this.password = password
-                            }
-                        }.onSuccess {
+                    viewModel.updatePassword(
+                        onSuccess = {
                             Toast.makeText(context, "Password updated successfully!", Toast.LENGTH_LONG).show()
                             navController.navigate(Route.Login) {
                                 popUpTo(0) { inclusive = true }
                             }
-                        }.onFailure {
-                            Toast.makeText(context, "Failed to update password. Try again.", Toast.LENGTH_LONG).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                         }
-                    }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = !viewModel.isLoading
             ) {
-                Text(
-                    "Update Password",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text(
+                        "Update Password",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,36 +24,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.providers.Github
-import io.github.jan.supabase.auth.providers.builtin.Email
 import it.unibo.trace.R
-import it.unibo.trace.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.components.InputField
-import kotlinx.coroutines.launch
+import it.unibo.trace.ui.viewmodel.RegistrationViewModel
 
 @Composable
-fun RegistrationScreen(navController: NavHostController) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
+fun RegistrationScreen(
+    navController: NavHostController,
+    viewModel: RegistrationViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
@@ -75,8 +65,8 @@ fun RegistrationScreen(navController: NavHostController) {
 
             InputField(
                 label = "EMAIL",
-                value = email,
-                onValueChange = { email = it },
+                value = viewModel.email,
+                onValueChange = { viewModel.onEmailChange(it) },
                 placeholder = "Enter your email"
             )
 
@@ -84,15 +74,15 @@ fun RegistrationScreen(navController: NavHostController) {
 
             InputField(
                 label = "PASSWORD",
-                value = password,
-                onValueChange = { password = it },
+                value = viewModel.password,
+                onValueChange = { viewModel.onPasswordChange(it) },
                 placeholder = "Enter your password",
                 isPassword = true,
-                passwordVisible = passwordVisible,
+                passwordVisible = viewModel.passwordVisible,
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -103,15 +93,15 @@ fun RegistrationScreen(navController: NavHostController) {
 
             InputField(
                 label = "CONFIRM PASSWORD",
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                value = viewModel.confirmPassword,
+                onValueChange = { viewModel.onConfirmPasswordChange(it) },
                 placeholder = "Confirm your password",
                 isPassword = true,
-                passwordVisible = passwordVisible,
+                passwordVisible = viewModel.passwordVisible,
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -122,45 +112,33 @@ fun RegistrationScreen(navController: NavHostController) {
 
             Button(
                 onClick = {
-                    if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    if (password != confirmPassword) {
-                        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    scope.launch {
-                        runCatching {
-                            supabase.auth.signUpWith(Email, "it.unibo.trace://login-callback") {
-                                this.email = email
-                                this.password = password
-                            }
-                        }.onSuccess {
+                    viewModel.signUp(
+                        onSuccess = {
                             Toast.makeText(context, "Account created! Please login.", Toast.LENGTH_LONG).show()
                             navController.navigate(Route.Login) {
                                 popUpTo(Route.Registration) { inclusive = true }
                             }
-                        }.onFailure { e ->
-                            val msg = when {
-                                e.message?.contains("already registered", ignoreCase = true) == true -> "Email already in use"
-                                e.message?.contains("weak", ignoreCase = true) == true -> "Password is too weak"
-                                else -> "Registration failed. Please try again."
-                            }
-                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                         }
-                    }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = !viewModel.isLoading
             ) {
-                Text(
-                    "Create Account",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text(
+                        "Create Account",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -190,12 +168,11 @@ fun RegistrationScreen(navController: NavHostController) {
 
             OutlinedButton(
                 onClick = {
-                    scope.launch {
-                        runCatching { supabase.auth.signInWith(Github) }
-                            .onFailure {
-                                Toast.makeText(context, "GitHub Login failed", Toast.LENGTH_LONG).show()
-                            }
-                    }
+                    viewModel.signUpWithGithub(
+                        onError = { error ->
+                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                        }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
