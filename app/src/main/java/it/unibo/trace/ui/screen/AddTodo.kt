@@ -19,6 +19,7 @@ import androidx.navigation.NavHostController
 import it.unibo.trace.ui.composable.InputField
 import it.unibo.trace.ui.composable.TopBar
 import it.unibo.trace.ui.viewmodel.AddTodoViewModel
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun AddTodoScreen(

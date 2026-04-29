@@ -3,6 +3,7 @@ package it.unibo.trace
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import io.github.jan.supabase.auth.handleDeeplinks
 import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.NavGraph
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        enableEdgeToEdge()
         supabase.handleDeeplinks(intent)
         setContent {
             val mainViewModel: MainViewModel = viewModel()
