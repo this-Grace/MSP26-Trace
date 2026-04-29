@@ -17,6 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,14 +29,34 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.composable.InputField
-import it.unibo.trace.ui.viewmodel.ForgotPasswordViewModel
+import it.unibo.trace.ui.viewmodel.auth.ForgotPasswordEvent
+import it.unibo.trace.ui.viewmodel.auth.ForgotPasswordViewModel
+import kotlinx.coroutines.flow.collectLatest
 
+/**
+ * Screen for requesting a password reset link.
+ */
 @Composable
 fun ForgotPasswordScreen(
     navController: NavHostController,
     viewModel: ForgotPasswordViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is ForgotPasswordEvent.ResetLinkSent -> {
+                    Toast.makeText(context, "Instructions sent! Please check your inbox.", Toast.LENGTH_LONG).show()
+                    navController.popBackStack()
+                }
+                is ForgotPasswordEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
@@ -68,32 +91,22 @@ fun ForgotPasswordScreen(
 
             InputField(
                 label = "EMAIL ADDRESS",
-                value = viewModel.email,
-                onValueChange = { viewModel.onEmailChange(it) },
+                value = uiState.email,
+                onValueChange = { viewModel.updateEmail(it) },
                 placeholder = "example@email.com",
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = {
-                    viewModel.sendResetLink(
-                        onSuccess = {
-                            Toast.makeText(context, "Instructions sent! Please check your inbox.", Toast.LENGTH_LONG).show()
-                            navController.popBackStack()
-                        },
-                        onError = { error ->
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                        }
-                    )
-                },
+                onClick = { viewModel.sendResetLink() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = !viewModel.isLoading
+                enabled = !uiState.isLoading
             ) {
-                if (viewModel.isLoading) {
+                if (uiState.isLoading) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
                     Text(

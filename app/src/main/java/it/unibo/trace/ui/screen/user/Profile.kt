@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -21,26 +23,47 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.ProfileInfoItem
+import it.unibo.trace.ui.composable.ThemeSelector
 import it.unibo.trace.ui.composable.TopBar
-import it.unibo.trace.ui.viewmodel.ProfileViewModel
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonPrimitive
+import it.unibo.trace.ui.viewmodel.user.ProfileEvent
+import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
+import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(kotlin.time.ExperimentalTime::class)
-@Composable
-fun ProfileScreen(
-    navController: NavHostController,
-    viewModel: ProfileViewModel = viewModel()
-) {
-    val context = LocalContext.current
-    val user by viewModel.user.collectAsState()
+/**
+ * Screen displaying the user's profile information and theme settings.
+ *
+ * @param navController Controller for navigating between screens.
+ * @param viewModel ViewModel providing the screen's state and actions.
+ */
+ @Composable
+ fun ProfileScreen(
+     navController: NavHostController,
+     modifier: Modifier = Modifier,
+     viewModel: ProfileViewModel = viewModel()
+ ) {
+     val context = LocalContext.current
+     val uiState by viewModel.uiState.collectAsState()
+     val theme by viewModel.theme.collectAsState()
 
-    val email = user?.email ?: "Not available"
-    val loginType = user?.appMetadata?.get("provider")?.jsonPrimitive?.contentOrNull ?: "Unknown"
-    val lastLogin = user?.lastSignInAt?.toString() ?: "Never"
+     LaunchedEffect(Unit) {
+         viewModel.events.collectLatest { event ->
+             when (event) {
+                 is ProfileEvent.LogoutSuccess -> {
+                     Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
+                     navController.navigate(Route.Login) {
+                         popUpTo(Route.Home) { inclusive = true }
+                     }
+                 }
+                 is ProfileEvent.Error -> {
+                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                 }
+             }
+         }
+     }
 
-    Scaffold(
-        topBar = {
+     Scaffold(
+         modifier = modifier,
+         topBar = {
             TopBar(
                 title = "Profile",
                 onNavigateBack = { navController.popBackStack() }
@@ -48,19 +71,7 @@ fun ProfileScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    viewModel.logout(
-                        onSuccess = {
-                            Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
-                            navController.navigate(Route.Login) {
-                                popUpTo(Route.Home) { inclusive = true }
-                            }
-                        },
-                        onError = { error ->
-                            Toast.makeText(context, "Logout failed: $error", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                },
+                onClick = { viewModel.logout() },
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer
             ) {
@@ -75,9 +86,19 @@ fun ProfileScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            ProfileInfoItem(label = "Email", value = email)
-            ProfileInfoItem(label = "Login Type", value = loginType.replaceFirstChar { it.uppercase() })
-            ProfileInfoItem(label = "Last Login", value = lastLogin)
+            ProfileInfoItem(label = "Email", value = uiState.email)
+            ProfileInfoItem(label = "Login Type", value = uiState.loginType)
+            ProfileInfoItem(label = "Last Login", value = uiState.lastLogin)
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            ThemeSelector(
+                selectedTheme = theme,
+                onThemeSelected = { viewModel.setTheme(it) }
+            )
         }
     }
 }
