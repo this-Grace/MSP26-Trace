@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.components.TopBar
+import it.unibo.trace.ui.composable.TopBar
 import it.unibo.trace.ui.viewmodel.HomeViewModel
 
 @Composable

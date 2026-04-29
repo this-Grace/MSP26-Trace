@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.components
+package it.unibo.trace.ui.composable
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons

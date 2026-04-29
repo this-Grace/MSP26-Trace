@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.components.ProfileInfoItem
-import it.unibo.trace.ui.components.TopBar
+import it.unibo.trace.ui.composable.ProfileInfoItem
+import it.unibo.trace.ui.composable.TopBar
 import it.unibo.trace.ui.viewmodel.ProfileViewModel
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive

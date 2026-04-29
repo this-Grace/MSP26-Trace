@@ -34,7 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.R
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.components.InputField
+import it.unibo.trace.ui.composable.InputField
 import it.unibo.trace.ui.viewmodel.RegistrationViewModel
 
 @Composable
