@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.jan.supabase.auth.auth
 import it.unibo.trace.data.supabase
+import it.unibo.trace.ui.screen.AddTodoScreen
 import it.unibo.trace.ui.screen.HomeScreen
 import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.LoginScreen
@@ -23,6 +24,7 @@ sealed interface Route {
     @Serializable data object ResetPassword : Route
     @Serializable data object Home : Route
     @Serializable data object Profile : Route
+    @Serializable data object AddTodo : Route
 }
 
 @Composable
@@ -53,6 +55,11 @@ fun NavGraph(
         composable<Route.Profile> {
             ProtectedRoute(navController) {
                 ProfileScreen(navController)
+            }
+        }
+        composable<Route.AddTodo> {
+            ProtectedRoute(navController) {
+                AddTodoScreen(navController)
             }
         }
     }
