@@ -13,7 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import it.unibo.trace.ui.viewmodel.MainViewModel
 
-class   MainActivity : ComponentActivity() {
+/**
+ * The main entry point of the application.
+ *
+ * This activity is responsible for:
+ * - Handling Supabase authentication deep links.
+ * - Initializing the Compose UI content.
+ * - Managing the global application theme via [MainViewModel].
+ */
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
