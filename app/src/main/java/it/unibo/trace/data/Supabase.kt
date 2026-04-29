@@ -10,5 +10,8 @@ val supabase = createSupabaseClient(
     supabaseKey = BuildConfig.SUPABASE_KEY
 ) {
     install(Postgrest)
-    install(Auth)
+    install(Auth) {
+        scheme = "it.unibo.trace"
+        host = "login-callback"
+    }
 }

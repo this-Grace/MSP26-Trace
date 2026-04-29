@@ -9,11 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import io.github.jan.supabase.auth.auth
 import it.unibo.trace.data.supabase
 import it.unibo.trace.ui.screen.HomeScreen
+import it.unibo.trace.ui.screen.user.ProfileScreen
 import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.LoginScreen
 import it.unibo.trace.ui.screen.auth.RegistrationScreen
 import it.unibo.trace.ui.screen.auth.ResetPasswordScreen
-import it.unibo.trace.ui.screen.user.ProfileScreen
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
