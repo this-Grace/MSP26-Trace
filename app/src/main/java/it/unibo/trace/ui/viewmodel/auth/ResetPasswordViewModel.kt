@@ -2,8 +2,7 @@ package it.unibo.trace.ui.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
-import it.unibo.trace.data.supabase.supabase
+import it.unibo.trace.data.supabase.service.AuthService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -69,9 +68,7 @@ class ResetPasswordViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                supabase.auth.updateUser {
-                    password = state.password
-                }
+                AuthService.updatePassword(state.password)
                 _events.emit(ResetPasswordEvent.PasswordUpdated)
             } catch (e: Exception) {
                 _events.emit(ResetPasswordEvent.Error("Failed to update password. Try again."))

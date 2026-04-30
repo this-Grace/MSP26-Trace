@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 import it.unibo.trace.data.ThemeRepository
+import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -65,7 +66,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     @OptIn(ExperimentalTime::class)
     private fun loadUserProfile() {
-        val user = supabase.auth.currentUserOrNull()
+        val user = AuthService.getCurrentUser()
         if (user != null) {
             val lastLoginDate = user.lastSignInAt?.let {
                 java.time.Instant.ofEpochMilli(it.toEpochMilliseconds())
@@ -96,7 +97,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun logout() {
         viewModelScope.launch {
             try {
-                supabase.auth.signOut()
+                AuthService.signOut()
                 _events.emit(ProfileEvent.LogoutSuccess)
             } catch (e: Exception) {
                 _events.emit(ProfileEvent.Error(e.localizedMessage ?: "Logout failed"))
@@ -104,9 +105,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /**
-     * Delete the current user and emits a [ProfileEvent.DeleteSuccess] event.
-     */
     fun deleteAccount() {
         viewModelScope.launch {
             try {
