@@ -39,7 +39,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.R
+import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.InputField
 import it.unibo.trace.ui.viewmodel.auth.LoginEvent
@@ -56,16 +59,20 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    val sessionStatus by supabase.auth.sessionStatus.collectAsState()
+
+    LaunchedEffect(sessionStatus) {
+        if (sessionStatus is SessionStatus.Authenticated) {
+            navController.navigate(Route.Home) {
+                popUpTo(Route.Login) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
             when (event) {
-                is LoginEvent.LoginSuccess -> {
-                    navController.navigate(Route.Home) {
-                        popUpTo(Route.Login) { inclusive = true }
-                    }
-                }
-
                 is LoginEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
                 }

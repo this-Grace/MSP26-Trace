@@ -25,7 +25,6 @@ data class LoginUiState(
  * One-time events for the Login screen.
  */
 sealed class LoginEvent {
-    data object LoginSuccess : LoginEvent()
     data class Error(val message: String) : LoginEvent()
 }
 
@@ -65,7 +64,6 @@ class LoginViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 AuthService.signIn(state.email, state.password)
-                _events.emit(LoginEvent.LoginSuccess)
             } catch (e: Exception) {
                 val msg = when {
                     e.message?.contains("invalid", ignoreCase = true) == true -> "Invalid email or password"

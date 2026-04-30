@@ -64,14 +64,30 @@ class ResetPasswordViewModel : ViewModel() {
             viewModelScope.launch { _events.emit(ResetPasswordEvent.Error("Passwords do not match")) }
             return
         }
+        if (AuthService.getCurrentUser() == null) {
+            viewModelScope.launch {
+                _events.emit(
+                    ResetPasswordEvent.Error(
+                        "Reset link expired or invalid. Please request a new one."
+                    )
+                )
+            }
+            return
+        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 AuthService.updatePassword(state.password)
+                AuthService.signOut()
                 _events.emit(ResetPasswordEvent.PasswordUpdated)
             } catch (e: Exception) {
-                _events.emit(ResetPasswordEvent.Error("Failed to update password. Try again."))
+                val msg = if (e.message?.contains("sign out", ignoreCase = true) == true) {
+                    "Password updated, but sign out failed. Please open the app again."
+                } else {
+                    "Failed to update password. Try again."
+                }
+                _events.emit(ResetPasswordEvent.Error(msg))
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
