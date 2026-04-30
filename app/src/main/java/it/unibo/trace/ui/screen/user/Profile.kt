@@ -1,7 +1,6 @@
 package it.unibo.trace.ui.screen.user
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,15 +23,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.ProfileActionButton
 import it.unibo.trace.ui.composable.ProfileInfoItem
@@ -57,6 +59,14 @@ import kotlinx.coroutines.flow.collectLatest
      val context = LocalContext.current
      val uiState by viewModel.uiState.collectAsState()
      val theme by viewModel.theme.collectAsState()
+
+    val svgImageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(SvgDecoder.Factory())
+            }
+            .build()
+    }
 
      LaunchedEffect(Unit) {
          viewModel.events.collectLatest { event ->
@@ -100,10 +110,11 @@ import kotlinx.coroutines.flow.collectLatest
                     .fillMaxWidth()
                     .aspectRatio(2f)
             ) {
-                Image(
-                    painter = painterResource(id = it.unibo.trace.R.drawable.ic_launcher_foreground),
-                    contentDescription = "profileImage",
-                    modifier = Modifier.fillMaxSize(),
+                AsyncImage(
+                    model = "https://api.dicebear.com/9.x/avataaars/svg?seed=${uiState.email}",
+                    contentDescription = "Avatar",
+                    imageLoader = svgImageLoader,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
