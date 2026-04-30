@@ -3,11 +3,9 @@ package it.unibo.trace.ui.viewmodel.user
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.postgrest
 import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.data.supabase.service.AuthService
-import it.unibo.trace.data.supabase.supabase
+import it.unibo.trace.data.supabase.service.UserService
 import it.unibo.trace.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,11 +15,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
-import java.time.ZoneId
-import kotlin.time.ExperimentalTime
 
 /**
  * UI State for the Profile screen.
@@ -64,20 +58,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         loadUserProfile()
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun loadUserProfile() {
-        val user = AuthService.getCurrentUser()
-        if (user != null) {
-            val lastLoginDate = user.lastSignInAt?.let {
-                java.time.Instant.ofEpochMilli(it.toEpochMilliseconds())
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime()
-            }
+        UserService.getProfileInfo()?.let { profile ->
             _uiState.value = ProfileUiState(
-                email = user.email ?: "Not available",
-                loginType = user.appMetadata?.get("provider")?.jsonPrimitive?.contentOrNull
-                    ?.replaceFirstChar { it.uppercase() } ?: "Unknown",
-                lastLogin = lastLoginDate
+                email = profile.email,
+                loginType = profile.loginType,
+                lastLogin = profile.lastLogin
             )
         }
     }
@@ -105,11 +91,14 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    /**
+     * Deletes the user account and signs out.
+     */
     fun deleteAccount() {
         viewModelScope.launch {
             try {
-                supabase.postgrest.rpc("delete_user")
-                supabase.auth.signOut()
+                UserService.deleteAccount()
+                AuthService.signOut()
                 _events.emit(ProfileEvent.DeleteSuccess)
             } catch (e: Exception) {
                 _events.emit(ProfileEvent.Error(e.localizedMessage ?: "Delete account failed"))
