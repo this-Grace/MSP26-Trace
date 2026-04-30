@@ -41,6 +41,10 @@ import it.unibo.trace.ui.composable.TopBar
 import it.unibo.trace.ui.viewmodel.user.ProfileEvent
 import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 /**
  * Screen displaying the user's profile information and theme settings.
@@ -48,37 +52,37 @@ import kotlinx.coroutines.flow.collectLatest
  * @param navController Controller for navigating between screens.
  * @param viewModel ViewModel providing the screen's state and actions.
  */
- @Composable
- fun ProfileScreen(
-     navController: NavHostController,
-     modifier: Modifier = Modifier,
-     viewModel: ProfileViewModel = viewModel()
- ) {
-     val context = LocalContext.current
-     val uiState by viewModel.uiState.collectAsState()
-     val theme by viewModel.theme.collectAsState()
+@Composable
+fun ProfileScreen(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+    val theme by viewModel.theme.collectAsState()
 
-     LaunchedEffect(Unit) {
-         viewModel.events.collectLatest { event ->
-             when (event) {
-                 is ProfileEvent.LogoutSuccess -> {
-                     Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
-                     navController.navigate(Route.Login) {
-                         popUpTo(Route.Home) { inclusive = true }
-                     }
-                 }
-                 is ProfileEvent.DeleteSuccess -> {
-                     Toast.makeText(context, "Account successfully deleted", Toast.LENGTH_LONG).show()
-                     navController.navigate(Route.Login) {
-                         popUpTo(Route.Home) { inclusive = true }
-                     }
-                 }
-                 is ProfileEvent.Error -> {
-                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                 }
-             }
-         }
-     }
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is ProfileEvent.LogoutSuccess -> {
+                    Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Home) { inclusive = true }
+                    }
+                }
+                is ProfileEvent.DeleteSuccess -> {
+                    Toast.makeText(context, "Account successfully deleted", Toast.LENGTH_LONG).show()
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Home) { inclusive = true }
+                    }
+                }
+                is ProfileEvent.Error -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -164,7 +168,11 @@ import kotlinx.coroutines.flow.collectLatest
             }
 
             Text(
-                text = "Last login: ${uiState.lastLogin}",
+                text = "Last login: ${
+                    uiState.lastLogin?.format(
+                        DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", Locale.ITALY)
+                    ) ?: "Never"
+                }",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

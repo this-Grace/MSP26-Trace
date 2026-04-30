@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.time.ExperimentalTime
 
 /**
@@ -26,7 +28,7 @@ import kotlin.time.ExperimentalTime
 data class ProfileUiState(
     val email: String = "",
     val loginType: String = "",
-    val lastLogin: String = ""
+    val lastLogin: LocalDateTime? = null
 )
 
 /**
@@ -65,11 +67,16 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private fun loadUserProfile() {
         val user = supabase.auth.currentUserOrNull()
         if (user != null) {
+            val lastLoginDate = user.lastSignInAt?.let {
+                java.time.Instant.ofEpochMilli(it.toEpochMilliseconds())
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime()
+            }
             _uiState.value = ProfileUiState(
                 email = user.email ?: "Not available",
                 loginType = user.appMetadata?.get("provider")?.jsonPrimitive?.contentOrNull
                     ?.replaceFirstChar { it.uppercase() } ?: "Unknown",
-                lastLogin = user.lastSignInAt?.toString() ?: "Never"
+                lastLogin = lastLoginDate
             )
         }
     }
