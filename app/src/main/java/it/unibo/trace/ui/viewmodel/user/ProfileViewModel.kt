@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.postgrest.postgrest
 import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.theme.AppTheme
@@ -33,6 +34,7 @@ data class ProfileUiState(
  */
 sealed class ProfileEvent {
     data object LogoutSuccess : ProfileEvent()
+    data object DeleteSuccess : ProfileEvent()
     data class Error(val message: String) : ProfileEvent()
 }
 
@@ -91,6 +93,21 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 _events.emit(ProfileEvent.LogoutSuccess)
             } catch (e: Exception) {
                 _events.emit(ProfileEvent.Error(e.localizedMessage ?: "Logout failed"))
+            }
+        }
+    }
+
+    /**
+     * Delete the current user and emits a [ProfileEvent.DeleteSuccess] event.
+     */
+    fun deleteAccount() {
+        viewModelScope.launch {
+            try {
+                supabase.postgrest.rpc("delete_user")
+                supabase.auth.signOut()
+                _events.emit(ProfileEvent.DeleteSuccess)
+            } catch (e: Exception) {
+                _events.emit(ProfileEvent.Error(e.localizedMessage ?: "Delete account failed"))
             }
         }
     }

@@ -2,7 +2,6 @@ package it.unibo.trace.ui.screen.user
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,8 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +63,12 @@ import kotlinx.coroutines.flow.collectLatest
              when (event) {
                  is ProfileEvent.LogoutSuccess -> {
                      Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
+                     navController.navigate(Route.Login) {
+                         popUpTo(Route.Home) { inclusive = true }
+                     }
+                 }
+                 is ProfileEvent.DeleteSuccess -> {
+                     Toast.makeText(context, "Account successfully deleted", Toast.LENGTH_LONG).show()
                      navController.navigate(Route.Login) {
                          popUpTo(Route.Home) { inclusive = true }
                      }
@@ -148,7 +151,7 @@ import kotlinx.coroutines.flow.collectLatest
                     text = "DELETE",
                     icon = Icons.Default.Delete,
                     color = MaterialTheme.colorScheme.error,
-                    onClick = { /* viewModel.deleteAccount() */ },
+                    onClick = { viewModel.deleteAccount() },
                     modifier = Modifier.weight(1f)
                 )
 
