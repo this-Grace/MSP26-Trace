@@ -26,10 +26,9 @@ object AuthService {
      * Registers a new user with email and password.
      */
     suspend fun signUp(email: String, pass: String) {
-        auth.signUpWith(Email) {
+        auth.signUpWith(Email, "it.unibo.trace://login-callback") {
             this.email = email
             password = pass
-            redirectUrl = "it.unibo.trace://login-callback"
         }
     }
 
@@ -52,8 +51,8 @@ object AuthService {
      */
     suspend fun sendResetPasswordEmail(email: String) {
         auth.resetPasswordForEmail(
-            email = email,
-            redirectUrl = "it.unibo.trace://login-callback"
+            email,
+            "it.unibo.trace://login-callback"
         )
     }
 
