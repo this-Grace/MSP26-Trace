@@ -3,9 +3,8 @@ package it.unibo.trace.ui.viewmodel.user
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
 import it.unibo.trace.data.ThemeRepository
-import it.unibo.trace.data.supabase.supabase
+import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,7 +60,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     @OptIn(ExperimentalTime::class)
     private fun loadUserProfile() {
-        val user = supabase.auth.currentUserOrNull()
+        val user = AuthService.getCurrentUser()
         if (user != null) {
             _uiState.value = ProfileUiState(
                 email = user.email ?: "Not available",
@@ -87,7 +86,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun logout() {
         viewModelScope.launch {
             try {
-                supabase.auth.signOut()
+                AuthService.signOut()
                 _events.emit(ProfileEvent.LogoutSuccess)
             } catch (e: Exception) {
                 _events.emit(ProfileEvent.Error(e.localizedMessage ?: "Logout failed"))

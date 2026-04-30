@@ -2,10 +2,7 @@ package it.unibo.trace.ui.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.providers.Github
-import io.github.jan.supabase.auth.providers.builtin.Email
-import it.unibo.trace.data.supabase.supabase
+import it.unibo.trace.data.supabase.service.AuthService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,10 +64,7 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                supabase.auth.signInWith(Email) {
-                    email = state.email
-                    password = state.password
-                }
+                AuthService.signIn(state.email, state.password)
                 _events.emit(LoginEvent.LoginSuccess)
             } catch (e: Exception) {
                 val msg = when {
@@ -91,7 +85,7 @@ class LoginViewModel : ViewModel() {
     fun signInWithGithub() {
         viewModelScope.launch {
             try {
-                supabase.auth.signInWith(Github)
+                AuthService.signInWithGithub()
             } catch (e: Exception) {
                 _events.emit(LoginEvent.Error("GitHub Login failed"))
             }

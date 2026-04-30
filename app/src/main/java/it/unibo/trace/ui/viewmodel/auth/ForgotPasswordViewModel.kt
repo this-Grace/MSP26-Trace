@@ -2,8 +2,7 @@ package it.unibo.trace.ui.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
-import it.unibo.trace.data.supabase.supabase
+import it.unibo.trace.data.supabase.service.AuthService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,10 +54,7 @@ class ForgotPasswordViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                supabase.auth.resetPasswordForEmail(
-                    email,
-                    "it.unibo.trace://login-callback"
-                )
+                AuthService.sendResetPasswordEmail(email)
                 _events.emit(ForgotPasswordEvent.ResetLinkSent)
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("network", ignoreCase = true) == true) {

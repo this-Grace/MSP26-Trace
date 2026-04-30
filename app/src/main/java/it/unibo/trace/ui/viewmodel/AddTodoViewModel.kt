@@ -2,10 +2,9 @@ package it.unibo.trace.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
 import it.unibo.trace.data.supabase.entities.TodoItem
+import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.TodoService
-import it.unibo.trace.data.supabase.supabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,7 +59,7 @@ class AddTodoViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
             try {
-                val user = supabase.auth.currentUserOrNull()
+                val user = AuthService.getCurrentUser()
                 if (user == null) {
                     _uiState.update { it.copy(errorMessage = "User not logged in", isSaving = false) }
                     return@launch

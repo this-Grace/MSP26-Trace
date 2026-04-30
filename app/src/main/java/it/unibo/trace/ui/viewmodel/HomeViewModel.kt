@@ -2,10 +2,9 @@ package it.unibo.trace.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
 import it.unibo.trace.data.supabase.entities.TodoItem
+import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.TodoService
-import it.unibo.trace.data.supabase.supabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -58,7 +57,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                val user = supabase.auth.currentUserOrNull()
+                val user = AuthService.getCurrentUser()
                 if (user == null) {
                     _uiState.update { it.copy(errorMessage = "User not authenticated", isLoading = false) }
                     return@launch
@@ -126,7 +125,7 @@ class HomeViewModel : ViewModel() {
     fun logout(onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                supabase.auth.signOut()
+                AuthService.signOut()
                 onSuccess()
             } catch (e: Exception) {
                 onError(e.localizedMessage ?: "Logout failed")
