@@ -3,44 +3,49 @@ package it.unibo.trace.ui.composable
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(
+fun TraceTopBar(
     title: String,
+    modifier: Modifier = Modifier,
     onNavigateBack: (() -> Unit)? = null,
-    onProfileClick: (() -> Unit)? = null,
-    actions: @Composable RowScope.() -> Unit = {}
+    navigationIcon: ImageVector = Icons.Default.ArrowBackIosNew,
+    actions: @Composable RowScope.() -> Unit = {},
+    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors()
 ) {
     TopAppBar(
-        title = { Text(title) },
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        modifier = modifier,
         navigationIcon = {
-            onNavigateBack?.let { action ->
-                IconButton(onClick = action) {
+            if (onNavigateBack != null) {
+                IconButton(onClick = onNavigateBack) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = "Back"
+                        imageVector = navigationIcon,
+                        contentDescription = "Localized description"
                     )
                 }
             }
         },
-        actions = {
-            onProfileClick?.let { action ->
-                IconButton(onClick = action) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile"
-                    )
-                }
-            }
-            actions()
-        }
+        actions = actions,
+        colors = colors
     )
 }
