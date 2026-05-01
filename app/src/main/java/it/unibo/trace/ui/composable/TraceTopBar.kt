@@ -2,7 +2,6 @@ package it.unibo.trace.ui.composable
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
