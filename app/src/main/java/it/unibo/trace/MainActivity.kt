@@ -2,7 +2,6 @@ package it.unibo.trace
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -13,6 +12,7 @@ import it.unibo.trace.ui.theme.TraceTheme
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.fragment.app.FragmentActivity
 import it.unibo.trace.ui.viewmodel.MainViewModel
 
 /**
@@ -23,7 +23,7 @@ import it.unibo.trace.ui.viewmodel.MainViewModel
  * - Initializing the Compose UI content.
  * - Managing the global application theme via [MainViewModel].
  */
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
