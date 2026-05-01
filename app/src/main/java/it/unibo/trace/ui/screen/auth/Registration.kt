@@ -7,24 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,7 +26,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.R
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.composable.InputField
+import it.unibo.trace.ui.composable.button.SocialSignInButton
+import it.unibo.trace.ui.composable.button.TraceButton
+import it.unibo.trace.ui.composable.input.EmailField
+import it.unibo.trace.ui.composable.input.PasswordField
+import it.unibo.trace.ui.composable.separator.TraceSeparator
 import it.unibo.trace.ui.viewmodel.auth.RegistrationEvent
 import it.unibo.trace.ui.viewmodel.auth.RegistrationViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -84,128 +73,56 @@ fun RegistrationScreen(
         ) {
             Text(
                 text = "Join " + stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineLarge.copy(
+                style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            InputField(
-                label = "EMAIL",
+            EmailField(
                 value = uiState.email,
-                onValueChange = { viewModel.updateEmail(it) },
-                placeholder = "Enter your email"
+                onValueChange = { viewModel.updateEmail(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            InputField(
-                label = "PASSWORD",
+            PasswordField(
                 value = uiState.password,
-                onValueChange = { viewModel.updatePassword(it) },
-                placeholder = "Enter your password",
-                isPassword = true,
-                passwordVisible = uiState.isPasswordVisible,
-                trailingIcon = {
-                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
-                        Icon(
-                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                }
+                label = "Password",
+                placeholder = "Insert Password",
+                onValueChange = { viewModel.updatePassword(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            InputField(
-                label = "CONFIRM PASSWORD",
-                value = uiState.confirmPassword,
-                onValueChange = { viewModel.updateConfirmPassword(it) },
-                placeholder = "Confirm your password",
-                isPassword = true,
-                passwordVisible = uiState.isPasswordVisible,
-                trailingIcon = {
-                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
-                        Icon(
-                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                }
+            PasswordField(
+                value = uiState.password,
+                label = "Confirm Password",
+                placeholder = "Confirm Password",
+                onValueChange = { viewModel.updateConfirmPassword(it) }
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
-                onClick = { viewModel.signUp() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !uiState.isLoading
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Text(
-                        "Create Account",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            TraceButton(
+                text = "Sign In",
+                isLoading = uiState.isLoading,
+                onClick = { viewModel.signUp() }
+            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                ) {}
-                Text(
-                    "OR",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                ) {}
-            }
+            TraceSeparator(text = "OR")
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedButton(
-                onClick = { viewModel.signUpWithGithub() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_github_logo),
-                        contentDescription = "GitHub logo",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        "Sign up with GitHub",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
+            SocialSignInButton(
+                text = "Sign in with GitHub",
+                iconRes = R.drawable.ic_github_logo,
+                onClick = { viewModel.signUpWithGithub() }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 

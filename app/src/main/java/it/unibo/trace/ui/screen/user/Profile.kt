@@ -39,13 +39,11 @@ import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.ProfileActionButton
 import it.unibo.trace.ui.composable.ProfileInfoItem
 import it.unibo.trace.ui.composable.ThemeSelector
-import it.unibo.trace.ui.composable.TopBar
+import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.viewmodel.user.ProfileEvent
 import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 /**
@@ -97,7 +95,7 @@ fun ProfileScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopBar(
+            TraceTopBar(
                 title = "Profile",
                 onNavigateBack = { navController.popBackStack() }
             )

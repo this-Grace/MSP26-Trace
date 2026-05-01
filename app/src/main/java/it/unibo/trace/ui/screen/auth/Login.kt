@@ -7,24 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,7 +29,11 @@ import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.R
 import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.composable.InputField
+import it.unibo.trace.ui.composable.button.SocialSignInButton
+import it.unibo.trace.ui.composable.button.TraceButton
+import it.unibo.trace.ui.composable.input.EmailField
+import it.unibo.trace.ui.composable.input.PasswordField
+import it.unibo.trace.ui.composable.separator.TraceSeparator
 import it.unibo.trace.ui.viewmodel.auth.LoginEvent
 import it.unibo.trace.ui.viewmodel.auth.LoginViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -93,36 +82,24 @@ fun LoginScreen(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            InputField(
-                label = "EMAIL",
+            EmailField(
                 value = uiState.email,
-                onValueChange = { viewModel.updateEmail(it) },
-                placeholder = "Enter your email"
+                onValueChange = { viewModel.updateEmail(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            InputField(
-                label = "PASSWORD",
+            PasswordField(
                 value = uiState.password,
-                onValueChange = { viewModel.updatePassword(it) },
-                placeholder = "Enter your password",
-                isPassword = true,
-                passwordVisible = uiState.isPasswordVisible,
-                trailingIcon = {
-                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
-                        Icon(
-                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                }
+                label = "Password",
+                placeholder = "Insert Password",
+                onValueChange = { viewModel.updatePassword(it) }
             )
 
             Text(
@@ -137,75 +114,25 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
-                onClick = { viewModel.signIn() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !uiState.isLoading
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Text(
-                        "Sign In",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            TraceButton(
+                text = "Sign In",
+                isLoading = uiState.isLoading,
+                onClick = { viewModel.signIn() }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TraceSeparator(text = "OR")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SocialSignInButton(
+                text = "Sign in with GitHub",
+                iconRes = R.drawable.ic_github_logo,
+                onClick = { viewModel.signInWithGithub() }
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                ) {}
-                Text(
-                    "OR",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                ) {}
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OutlinedButton(
-                onClick = { viewModel.signInWithGithub() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_github_logo),
-                        contentDescription = "GitHub logo",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        "Sign in with GitHub",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
 
             Row {
                 Text(

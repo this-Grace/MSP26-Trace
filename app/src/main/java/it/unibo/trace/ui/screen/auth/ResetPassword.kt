@@ -31,7 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.composable.InputField
+import it.unibo.trace.ui.composable.button.TraceButton
+import it.unibo.trace.ui.composable.input.PasswordField
 import it.unibo.trace.ui.viewmodel.auth.ResetPasswordEvent
 import it.unibo.trace.ui.viewmodel.auth.ResetPasswordViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -74,13 +75,13 @@ fun ResetPasswordScreen(
         ) {
             Text(
                 text = "New Password",
-                style = MaterialTheme.typography.headlineLarge.copy(
+                style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "Please enter your new password below.",
@@ -88,64 +89,31 @@ fun ResetPasswordScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            InputField(
-                label = "NEW PASSWORD",
+            PasswordField(
                 value = uiState.password,
-                onValueChange = { viewModel.updatePassword(it) },
-                placeholder = "Enter new password",
-                isPassword = true,
-                passwordVisible = uiState.isPasswordVisible,
-                trailingIcon = {
-                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
-                        Icon(
-                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                }
+                label = "Password",
+                placeholder = "Insert Password",
+                onValueChange = { viewModel.updatePassword(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            InputField(
-                label = "CONFIRM NEW PASSWORD",
-                value = uiState.confirmPassword,
-                onValueChange = { viewModel.updateConfirmPassword(it) },
-                placeholder = "Confirm new password",
-                isPassword = true,
-                passwordVisible = uiState.isPasswordVisible,
-                trailingIcon = {
-                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
-                        Icon(
-                            imageVector = if (uiState.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                }
+            PasswordField(
+                value = uiState.password,
+                label = "Confirm Password",
+                placeholder = "Confirm Password",
+                onValueChange = { viewModel.updateConfirmPassword(it) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
-                onClick = { viewModel.updatePassword() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !uiState.isLoading
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Text(
-                        "Update Password",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            TraceButton(
+                text = "Update Password",
+                isLoading = uiState.isLoading,
+                onClick = { viewModel.updatePassword() }
+            )
         }
     }
 }

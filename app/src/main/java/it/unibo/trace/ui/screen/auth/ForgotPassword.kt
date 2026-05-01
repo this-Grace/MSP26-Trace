@@ -7,12 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,7 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import it.unibo.trace.ui.composable.InputField
+import it.unibo.trace.ui.composable.button.TraceButton
+import it.unibo.trace.ui.composable.input.EmailField
 import it.unibo.trace.ui.viewmodel.auth.ForgotPasswordEvent
 import it.unibo.trace.ui.viewmodel.auth.ForgotPasswordViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -58,9 +55,7 @@ fun ForgotPasswordScreen(
         }
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,13 +66,13 @@ fun ForgotPasswordScreen(
         ) {
             Text(
                 text = "Forgot Password",
-                style = MaterialTheme.typography.headlineLarge.copy(
+                style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "Enter your email address and we will send you a link to reset your password.",
@@ -87,35 +82,20 @@ fun ForgotPasswordScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            InputField(
-                label = "EMAIL ADDRESS",
+            EmailField(
                 value = uiState.email,
-                onValueChange = { viewModel.updateEmail(it) },
-                placeholder = "example@email.com",
+                onValueChange = { viewModel.updateEmail(it) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
-                onClick = { viewModel.sendResetLink() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !uiState.isLoading
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Text(
-                        "Send Reset Link",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            TraceButton(
+                text = "Send Reset Link",
+                isLoading = uiState.isLoading,
+                onClick = { viewModel.sendResetLink() }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 

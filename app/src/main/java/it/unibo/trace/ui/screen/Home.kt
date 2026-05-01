@@ -1,9 +1,6 @@
 package it.unibo.trace.ui.screen
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,9 +11,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,7 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.TodoCard
-import it.unibo.trace.ui.composable.TopBar
+import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.viewmodel.HomeEvent
 import it.unibo.trace.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -67,9 +66,17 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopBar(
+            TraceTopBar(
                 title = "My Tasks",
-                onProfileClick = { navController.navigate(Route.Profile) }
+                actions = {
+                    IconButton(onClick = { navController.navigate(Route.Profile) }) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             )
         },
         floatingActionButton = {
