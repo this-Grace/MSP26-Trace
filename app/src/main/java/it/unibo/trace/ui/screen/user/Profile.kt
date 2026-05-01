@@ -15,15 +15,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +41,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import it.unibo.trace.ui.Route
+import it.unibo.trace.ui.composable.InputField
 import it.unibo.trace.ui.composable.ProfileActionButton
 import it.unibo.trace.ui.composable.ProfileInfoItem
 import it.unibo.trace.ui.composable.ThemeSelector
@@ -43,9 +49,7 @@ import it.unibo.trace.ui.composable.TopBar
 import it.unibo.trace.ui.viewmodel.user.ProfileEvent
 import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 /**
@@ -64,6 +68,8 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val theme by viewModel.theme.collectAsState()
 
+    var showDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
             when (event) {
@@ -73,12 +79,15 @@ fun ProfileScreen(
                         popUpTo(Route.Home) { inclusive = true }
                     }
                 }
+
                 is ProfileEvent.DeleteSuccess -> {
-                    Toast.makeText(context, "Account successfully deleted", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Account successfully deleted", Toast.LENGTH_LONG)
+                        .show()
                     navController.navigate(Route.Login) {
                         popUpTo(Route.Home) { inclusive = true }
                     }
                 }
+
                 is ProfileEvent.Error -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
@@ -103,6 +112,18 @@ fun ProfileScreen(
             )
         }
     ) { innerPadding ->
+
+        if (showDialog) {
+            DeleteAccountDialog(
+                targetEmail = uiState.email,
+                onDismiss = { showDialog = false },
+                onConfirm = {
+                    showDialog = false
+                    viewModel.deleteAccount()
+                }
+            )
+        }
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -166,7 +187,7 @@ fun ProfileScreen(
                     text = "DELETE",
                     icon = Icons.Default.Delete,
                     color = MaterialTheme.colorScheme.error,
-                    onClick = { viewModel.deleteAccount() },
+                    onClick = { showDialog = true},
                     modifier = Modifier.weight(1f)
                 )
 
@@ -190,4 +211,44 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
+}
+
+@Composable
+fun DeleteAccountDialog(
+    targetEmail: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    var inputEmail by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete Account") },
+        text = {
+            Column {
+                Text("This action is irreversible. Type $targetEmail to confirm.")
+                Spacer(modifier = Modifier.height(8.dp))
+                InputField(
+                    value = inputEmail,
+                    onValueChange = { inputEmail = it },
+                    label = "Email",
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = inputEmail == targetEmail,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("DELETE")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
