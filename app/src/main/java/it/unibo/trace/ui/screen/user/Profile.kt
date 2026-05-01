@@ -41,11 +41,11 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.composable.InputField
 import it.unibo.trace.ui.composable.ProfileActionButton
 import it.unibo.trace.ui.composable.ProfileInfoItem
 import it.unibo.trace.ui.composable.ThemeSelector
 import it.unibo.trace.ui.composable.TraceTopBar
+import it.unibo.trace.ui.composable.input.EmailField
 import it.unibo.trace.ui.viewmodel.user.ProfileEvent
 import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -228,10 +228,9 @@ fun DeleteAccountDialog(
             Column {
                 Text("This action is irreversible. Type $targetEmail to confirm.")
                 Spacer(modifier = Modifier.height(8.dp))
-                InputField(
+                EmailField(
                     value = inputEmail,
                     onValueChange = { inputEmail = it },
-                    label = "Email",
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
