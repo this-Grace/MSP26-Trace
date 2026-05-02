@@ -3,6 +3,8 @@ package it.unibo.trace.ui.viewmodel.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
+import it.unibo.trace.utils.MessageDuration
+import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +29,6 @@ data class RegistrationUiState(
  */
 sealed class RegistrationEvent {
     data object RegistrationSuccess : RegistrationEvent()
-    data class Error(val message: String) : RegistrationEvent()
 }
 
 /**
@@ -52,21 +53,17 @@ class RegistrationViewModel : ViewModel() {
         _uiState.update { it.copy(confirmPassword = password) }
     }
 
-    fun togglePasswordVisibility() {
-        _uiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
-    }
-
     /**
      * Attempts to sign up a new user with email and password.
      */
     fun signUp() {
         val state = _uiState.value
         if (state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank()) {
-            viewModelScope.launch { _events.emit(RegistrationEvent.Error("Please fill all fields")) }
+            UiMessenger.show("Please fill all fields")
             return
         }
         if (state.password != state.confirmPassword) {
-            viewModelScope.launch { _events.emit(RegistrationEvent.Error("Passwords do not match")) }
+            UiMessenger.show("Passwords do not match")
             return
         }
 
@@ -74,6 +71,7 @@ class RegistrationViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 AuthService.signUp(state.email, state.password)
+                UiMessenger.show("Account created! Please check your email.", MessageDuration.LONG)
                 _events.emit(RegistrationEvent.RegistrationSuccess)
             } catch (e: Exception) {
                 val msg = when {
@@ -81,7 +79,7 @@ class RegistrationViewModel : ViewModel() {
                     e.message?.contains("weak", ignoreCase = true) == true -> "Password is too weak"
                     else -> "Registration failed. Please try again."
                 }
-                _events.emit(RegistrationEvent.Error(msg))
+                UiMessenger.show(msg)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
@@ -96,7 +94,7 @@ class RegistrationViewModel : ViewModel() {
             try {
                 AuthService.signInWithGithub()
             } catch (e: Exception) {
-                _events.emit(RegistrationEvent.Error("GitHub Login failed"))
+                UiMessenger.show("GitHub Login failed")
             }
         }
     }

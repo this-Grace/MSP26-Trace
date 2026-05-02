@@ -1,6 +1,5 @@
 package it.unibo.trace.ui.screen.auth
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,18 +36,13 @@ fun ForgotPasswordScreen(
     navController: NavHostController,
     viewModel: ForgotPasswordViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
             when (event) {
                 is ForgotPasswordEvent.ResetLinkSent -> {
-                    Toast.makeText(context, "Instructions sent! Please check your inbox.", Toast.LENGTH_LONG).show()
                     navController.popBackStack()
-                }
-                is ForgotPasswordEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
                 }
             }
         }

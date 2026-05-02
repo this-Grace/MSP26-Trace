@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.entities.TodoItem
 import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.TodoService
+import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,6 @@ data class AddTodoUiState(
  */
 sealed class AddTodoEvent {
     data object SaveSuccess : AddTodoEvent()
-    data class ShowMessage(val message: String) : AddTodoEvent()
 }
 
 /**
@@ -61,25 +61,23 @@ class AddTodoViewModel : ViewModel() {
             try {
                 val user = AuthService.getCurrentUser()
                 if (user == null) {
-                    _uiState.update { it.copy(errorMessage = "User not logged in", isSaving = false) }
+                    _uiState.update { it.copy(isSaving = false) }
+                    UiMessenger.show("User not logged in")
                     return@launch
                 }
 
-                val newTodo = TodoItem(
-                    name = name,
-                    uid = user.id
-                )
+                val newTodo = TodoItem(name = name, uid = user.id)
 
                 withContext(Dispatchers.IO) {
                     TodoService.insertTodo(newTodo)
                 }
-                _events.emit(AddTodoEvent.ShowMessage("Task created successfully!"))
+
+                UiMessenger.show("Task created successfully!")
                 _events.emit(AddTodoEvent.SaveSuccess)
             } catch (e: Exception) {
-                e.printStackTrace()
                 val msg = e.localizedMessage ?: "Failed to save todo"
                 _uiState.update { it.copy(errorMessage = msg) }
-                _events.emit(AddTodoEvent.ShowMessage("Error: $msg"))
+                UiMessenger.show("Error: $msg")
             } finally {
                 _uiState.update { it.copy(isSaving = false) }
             }

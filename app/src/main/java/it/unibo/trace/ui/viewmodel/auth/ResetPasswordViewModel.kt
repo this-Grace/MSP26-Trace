@@ -3,6 +3,8 @@ package it.unibo.trace.ui.viewmodel.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
+import it.unibo.trace.utils.MessageDuration
+import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +28,6 @@ data class ResetPasswordUiState(
  */
 sealed class ResetPasswordEvent {
     data object PasswordUpdated : ResetPasswordEvent()
-    data class Error(val message: String) : ResetPasswordEvent()
 }
 
 /**
@@ -47,31 +48,21 @@ class ResetPasswordViewModel : ViewModel() {
         _uiState.update { it.copy(confirmPassword = password) }
     }
 
-    fun togglePasswordVisibility() {
-        _uiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
-    }
-
     /**
      * Updates the user's password in Supabase.
      */
     fun updatePassword() {
         val state = _uiState.value
         if (state.password.isBlank() || state.confirmPassword.isBlank()) {
-            viewModelScope.launch { _events.emit(ResetPasswordEvent.Error("Please fill all fields")) }
+            UiMessenger.show("Please fill all fields")
             return
         }
         if (state.password != state.confirmPassword) {
-            viewModelScope.launch { _events.emit(ResetPasswordEvent.Error("Passwords do not match")) }
+            UiMessenger.show("Passwords do not match")
             return
         }
         if (AuthService.getCurrentUser() == null) {
-            viewModelScope.launch {
-                _events.emit(
-                    ResetPasswordEvent.Error(
-                        "Reset link expired or invalid. Please request a new one."
-                    )
-                )
-            }
+            UiMessenger.show("Reset link expired or invalid. Please request a new one.")
             return
         }
 
@@ -80,6 +71,7 @@ class ResetPasswordViewModel : ViewModel() {
             try {
                 AuthService.updatePassword(state.password)
                 AuthService.signOut()
+                UiMessenger.show("Password updated successfully!", MessageDuration.LONG)
                 _events.emit(ResetPasswordEvent.PasswordUpdated)
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("sign out", ignoreCase = true) == true) {
@@ -87,7 +79,7 @@ class ResetPasswordViewModel : ViewModel() {
                 } else {
                     "Failed to update password. Try again."
                 }
-                _events.emit(ResetPasswordEvent.Error(msg))
+                UiMessenger.show(msg)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }

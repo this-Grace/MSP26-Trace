@@ -7,6 +7,8 @@ import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.UserService
 import it.unibo.trace.ui.theme.AppTheme
+import it.unibo.trace.utils.MessageDuration
+import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,7 +34,7 @@ data class ProfileUiState(
 sealed class ProfileEvent {
     data object LogoutSuccess : ProfileEvent()
     data object DeleteSuccess : ProfileEvent()
-    data class Error(val message: String) : ProfileEvent()
+//    data class Error(val message: String) : ProfileEvent()
 }
 
 /**
@@ -84,9 +86,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             try {
                 AuthService.signOut()
+                UiMessenger.show("Logout effettuato")
                 _events.emit(ProfileEvent.LogoutSuccess)
             } catch (e: Exception) {
-                _events.emit(ProfileEvent.Error(e.localizedMessage ?: "Logout failed"))
+                UiMessenger.show(e.localizedMessage ?: "Errore logout")
             }
         }
     }
@@ -99,9 +102,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             try {
                 UserService.deleteAccount()
                 AuthService.signOut()
+                UiMessenger.show("Account eliminato correttamente", MessageDuration.LONG)
                 _events.emit(ProfileEvent.DeleteSuccess)
             } catch (e: Exception) {
-                _events.emit(ProfileEvent.Error(e.localizedMessage ?: "Delete account failed"))
+                UiMessenger.show(e.localizedMessage ?: "Errore eliminazione account")
             }
         }
     }

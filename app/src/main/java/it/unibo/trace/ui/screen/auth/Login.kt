@@ -1,6 +1,5 @@
 package it.unibo.trace.ui.screen.auth
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,9 +32,7 @@ import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.EmailField
 import it.unibo.trace.ui.composable.input.PasswordField
 import it.unibo.trace.ui.composable.separator.TraceSeparator
-import it.unibo.trace.ui.viewmodel.auth.LoginEvent
 import it.unibo.trace.ui.viewmodel.auth.LoginViewModel
-import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Screen for user login via email/password or third-party providers.
@@ -46,7 +42,6 @@ fun LoginScreen(
     navController: NavHostController,
     viewModel: LoginViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
 
@@ -55,16 +50,6 @@ fun LoginScreen(
             navController.navigate(Route.Home) {
                 popUpTo(Route.Login) { inclusive = true }
                 launchSingleTop = true
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is LoginEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
-                }
             }
         }
     }

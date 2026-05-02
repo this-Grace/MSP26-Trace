@@ -3,6 +3,8 @@ package it.unibo.trace.ui.viewmodel.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
+import it.unibo.trace.utils.MessageDuration
+import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +26,6 @@ data class ForgotPasswordUiState(
  */
 sealed class ForgotPasswordEvent {
     data object ResetLinkSent : ForgotPasswordEvent()
-    data class Error(val message: String) : ForgotPasswordEvent()
 }
 
 /**
@@ -47,7 +48,7 @@ class ForgotPasswordViewModel : ViewModel() {
     fun sendResetLink() {
         val email = _uiState.value.email
         if (email.isBlank()) {
-            viewModelScope.launch { _events.emit(ForgotPasswordEvent.Error("Please enter your email")) }
+            UiMessenger.show("Please enter your email")
             return
         }
 
@@ -55,6 +56,7 @@ class ForgotPasswordViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 AuthService.sendResetPasswordEmail(email)
+                UiMessenger.show("Instructions sent! Please check your inbox.", MessageDuration.LONG)
                 _events.emit(ForgotPasswordEvent.ResetLinkSent)
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("network", ignoreCase = true) == true) {
@@ -62,7 +64,7 @@ class ForgotPasswordViewModel : ViewModel() {
                 } else {
                     "Failed to send reset link. Verify your email."
                 }
-                _events.emit(ForgotPasswordEvent.Error(msg))
+                UiMessenger.show(msg)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }

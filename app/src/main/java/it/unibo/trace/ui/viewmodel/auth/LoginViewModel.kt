@@ -3,10 +3,9 @@ package it.unibo.trace.ui.viewmodel.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
-import kotlinx.coroutines.flow.MutableSharedFlow
+import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,21 +21,11 @@ data class LoginUiState(
 )
 
 /**
- * One-time events for the Login screen.
- */
-sealed class LoginEvent {
-    data class Error(val message: String) : LoginEvent()
-}
-
-/**
  * ViewModel for handling user authentication (Email/Password and GitHub).
  */
 class LoginViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<LoginEvent>()
-    val events = _events.asSharedFlow()
 
     fun updateEmail(email: String) {
         _uiState.update { it.copy(email = email) }
@@ -46,17 +35,13 @@ class LoginViewModel : ViewModel() {
         _uiState.update { it.copy(password = password) }
     }
 
-    fun togglePasswordVisibility() {
-        _uiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
-    }
-
     /**
      * Attempts to sign in with email and password.
      */
     fun signIn() {
         val state = _uiState.value
         if (state.email.isBlank() || state.password.isBlank()) {
-            viewModelScope.launch { _events.emit(LoginEvent.Error("Please fill all fields")) }
+            UiMessenger.show("Please fill all fields")
             return
         }
 
@@ -70,7 +55,7 @@ class LoginViewModel : ViewModel() {
                     e.message?.contains("network", ignoreCase = true) == true -> "Network error, please check your connection"
                     else -> "Login failed. Please try again."
                 }
-                _events.emit(LoginEvent.Error(msg))
+                UiMessenger.show(msg)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
@@ -85,7 +70,7 @@ class LoginViewModel : ViewModel() {
             try {
                 AuthService.signInWithGithub()
             } catch (e: Exception) {
-                _events.emit(LoginEvent.Error("GitHub Login failed"))
+                UiMessenger.show("GitHub Login failed")
             }
         }
     }

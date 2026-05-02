@@ -1,6 +1,5 @@
 package it.unibo.trace.ui.screen
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +12,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -34,7 +32,6 @@ fun AddTodoScreen(
     modifier: Modifier = Modifier,
     viewModel: AddTodoViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -42,9 +39,6 @@ fun AddTodoScreen(
             when (event) {
                 is AddTodoEvent.SaveSuccess -> {
                     navController.popBackStack()
-                }
-                is AddTodoEvent.ShowMessage -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

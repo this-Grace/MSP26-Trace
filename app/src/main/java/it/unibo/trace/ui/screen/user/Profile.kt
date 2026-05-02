@@ -1,7 +1,6 @@
 package it.unibo.trace.ui.screen.user
 
 import android.hardware.biometrics.BiometricPrompt
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +44,7 @@ import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.viewmodel.user.ProfileEvent
 import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import it.unibo.trace.utils.BiometricAuthenticator
+import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.collectLatest
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -73,23 +73,10 @@ fun ProfileScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
             when (event) {
-                is ProfileEvent.LogoutSuccess -> {
-                    Toast.makeText(context, "Logout successful", Toast.LENGTH_SHORT).show()
+                is ProfileEvent.LogoutSuccess, is ProfileEvent.DeleteSuccess -> {
                     navController.navigate(Route.Login) {
                         popUpTo(Route.Home) { inclusive = true }
                     }
-                }
-
-                is ProfileEvent.DeleteSuccess -> {
-                    Toast.makeText(context, "Account successfully deleted", Toast.LENGTH_LONG)
-                        .show()
-                    navController.navigate(Route.Login) {
-                        popUpTo(Route.Home) { inclusive = true }
-                    }
-                }
-
-                is ProfileEvent.Error -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -183,7 +170,7 @@ fun ProfileScreen(
                             onSuccess = { viewModel.deleteAccount() },
                             onError = { code, message ->
                                 if (code != BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED) {
-                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    UiMessenger.show(message)
                                 }
                             }
                         )

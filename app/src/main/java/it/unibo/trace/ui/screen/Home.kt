@@ -1,6 +1,5 @@
 package it.unibo.trace.ui.screen
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -33,9 +31,7 @@ import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.TodoCard
 import it.unibo.trace.ui.composable.TraceTopBar
-import it.unibo.trace.ui.viewmodel.HomeEvent
 import it.unibo.trace.ui.viewmodel.HomeViewModel
-import kotlinx.coroutines.flow.collectLatest
 
 /**
  * The main screen of the application, displaying a list of tasks.
@@ -46,18 +42,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is HomeEvent.ShowMessage -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.fetchTodos()
