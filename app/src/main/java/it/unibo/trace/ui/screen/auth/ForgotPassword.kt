@@ -86,7 +86,7 @@ fun ForgotPasswordScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    "Login",
+                    "Sign In",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary

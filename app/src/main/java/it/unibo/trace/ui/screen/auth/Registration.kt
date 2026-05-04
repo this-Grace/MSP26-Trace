@@ -111,7 +111,7 @@ fun RegistrationScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    "Login",
+                    "Sign In",
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {

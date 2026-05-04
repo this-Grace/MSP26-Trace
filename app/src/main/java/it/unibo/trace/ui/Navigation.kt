@@ -56,7 +56,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Login
+        startDestination = Route.Home
     ) {
         composable<Route.Login> {
             LoginScreen(navController)
