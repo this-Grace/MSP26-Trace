@@ -2,8 +2,6 @@ package it.unibo.trace.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -17,7 +15,6 @@ import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.LoginScreen
 import it.unibo.trace.ui.screen.auth.RegistrationScreen
 import it.unibo.trace.ui.screen.auth.ResetPasswordScreen
-import it.unibo.trace.ui.viewmodel.MainViewModel
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
@@ -32,19 +29,8 @@ sealed interface Route {
 
 @Composable
 fun NavGraph(
-    mainViewModel: MainViewModel,
     navController: NavHostController = rememberNavController()
 ) {
-    val pendingReset by mainViewModel.pendingReset.collectAsState()
-    LaunchedEffect(pendingReset) {
-        if (pendingReset) {
-            navController.navigate(Route.ResetPassword) {
-                launchSingleTop = true
-            }
-            mainViewModel.clearPendingReset()
-        }
-    }
-
     NavHost(
         navController = navController,
         startDestination = Route.Home

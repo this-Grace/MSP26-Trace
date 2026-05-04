@@ -5,15 +5,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.ui.theme.AppTheme
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val themeRepository = ThemeRepository(application)
-    private val _pendingReset = MutableStateFlow(false)
 
     val theme: StateFlow<AppTheme> = themeRepository.themeFlow
         .stateIn(
@@ -21,14 +18,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = AppTheme.SYSTEM
         )
-
-    val pendingReset: StateFlow<Boolean> = _pendingReset.asStateFlow()
-
-    fun setPendingReset(pending: Boolean) {
-        _pendingReset.value = pending
-    }
-
-    fun clearPendingReset() {
-        _pendingReset.value = false
-    }
 }
