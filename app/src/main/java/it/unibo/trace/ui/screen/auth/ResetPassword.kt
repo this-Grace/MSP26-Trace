@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -19,12 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.PasswordField
-import it.unibo.trace.ui.viewmodel.auth.ResetPasswordEvent
 import it.unibo.trace.ui.viewmodel.auth.ResetPasswordViewModel
-import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Screen for setting a new password after a reset request.
@@ -35,18 +31,6 @@ fun ResetPasswordScreen(
     viewModel: ResetPasswordViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is ResetPasswordEvent.PasswordUpdated -> {
-                    navController.navigate(Route.Login) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            }
-        }
-    }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(

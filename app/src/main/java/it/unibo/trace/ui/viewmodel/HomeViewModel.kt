@@ -100,18 +100,4 @@ class HomeViewModel : ViewModel() {
             UiMessenger.show("Error: ${e.localizedMessage}")
         }
     }
-
-    /**
-     * Signs out the current user.
-     */
-    fun logout() {
-        viewModelScope.launch {
-            try {
-                AuthService.signOut()
-                UiMessenger.show("Sign out successful")
-            } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "Logout failed")
-            }
-        }
-    }
 }

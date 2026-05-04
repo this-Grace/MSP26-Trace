@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,21 +22,11 @@ data class ResetPasswordUiState(
 )
 
 /**
- * One-time events for the ResetPassword screen.
- */
-sealed class ResetPasswordEvent {
-    data object PasswordUpdated : ResetPasswordEvent()
-}
-
-/**
  * ViewModel for handling password updates (e.g., after clicking a reset link).
  */
 class ResetPasswordViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ResetPasswordUiState())
     val uiState: StateFlow<ResetPasswordUiState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<ResetPasswordEvent>()
-    val events = _events.asSharedFlow()
 
     fun updatePassword(password: String) {
         _uiState.update { it.copy(password = password) }
@@ -72,7 +60,6 @@ class ResetPasswordViewModel : ViewModel() {
                 AuthService.updatePassword(state.password)
                 AuthService.signOut()
                 UiMessenger.show("Password updated successfully!", MessageDuration.LONG)
-                _events.emit(ResetPasswordEvent.PasswordUpdated)
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("sign out", ignoreCase = true) == true) {
                     "Password updated, but sign out failed. Please open the app again."

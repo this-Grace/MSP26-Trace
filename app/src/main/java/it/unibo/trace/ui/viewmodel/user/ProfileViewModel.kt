@@ -9,11 +9,9 @@ import it.unibo.trace.data.supabase.service.UserService
 import it.unibo.trace.ui.theme.AppTheme
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -29,25 +27,13 @@ data class ProfileUiState(
 )
 
 /**
- * One-time events for the Profile screen.
- */
-sealed class ProfileEvent {
-    data object LogoutSuccess : ProfileEvent()
-    data object DeleteSuccess : ProfileEvent()
-//    data class Error(val message: String) : ProfileEvent()
-}
-
-/**
  * ViewModel for managing user profile data and application theme settings.
  */
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
     private val themeRepository = ThemeRepository(application)
-    
+
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<ProfileEvent>()
-    val events = _events.asSharedFlow()
 
     val theme: StateFlow<AppTheme> = themeRepository.themeFlow
         .stateIn(
@@ -80,16 +66,15 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /**
-     * Signs out the current user and emits a [ProfileEvent.LogoutSuccess] event.
+     * Signs out the current user.
      */
     fun logout() {
         viewModelScope.launch {
             try {
                 AuthService.signOut()
-                UiMessenger.show("Logout effettuato")
-                _events.emit(ProfileEvent.LogoutSuccess)
+                UiMessenger.show("Logout done successfully!")
             } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "Errore logout")
+                UiMessenger.show(e.localizedMessage ?: "Failed to logout")
             }
         }
     }
@@ -102,8 +87,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             try {
                 UserService.deleteAccount()
                 AuthService.signOut()
-                UiMessenger.show("Account eliminato correttamente", MessageDuration.LONG)
-                _events.emit(ProfileEvent.DeleteSuccess)
+                UiMessenger.show("Account deleted successfully!", MessageDuration.LONG)
             } catch (e: Exception) {
                 UiMessenger.show(e.localizedMessage ?: "Errore eliminazione account")
             }

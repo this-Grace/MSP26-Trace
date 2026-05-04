@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -36,16 +35,13 @@ import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
-import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.ProfileActionButton
 import it.unibo.trace.ui.composable.ProfileInfoItem
 import it.unibo.trace.ui.composable.ThemeSelector
 import it.unibo.trace.ui.composable.TraceTopBar
-import it.unibo.trace.ui.viewmodel.user.ProfileEvent
 import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import it.unibo.trace.utils.BiometricAuthenticator
 import it.unibo.trace.utils.UiMessenger
-import kotlinx.coroutines.flow.collectLatest
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -68,18 +64,6 @@ fun ProfileScreen(
 
     val authenticator = remember(activity) {
         activity?.let { BiometricAuthenticator(it) }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is ProfileEvent.LogoutSuccess, is ProfileEvent.DeleteSuccess -> {
-                    navController.navigate(Route.Login) {
-                        popUpTo(Route.Home) { inclusive = true }
-                    }
-                }
-            }
-        }
     }
 
     val svgImageLoader = remember {

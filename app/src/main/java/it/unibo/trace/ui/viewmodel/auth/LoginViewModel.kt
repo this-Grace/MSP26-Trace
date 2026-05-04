@@ -70,7 +70,7 @@ class LoginViewModel : ViewModel() {
             try {
                 AuthService.signInWithGithub()
             } catch (e: Exception) {
-                UiMessenger.show("GitHub Login failed")
+                UiMessenger.show(e.localizedMessage ?: "GitHub Login failed")
             }
         }
     }
