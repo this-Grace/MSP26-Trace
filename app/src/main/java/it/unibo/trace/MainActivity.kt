@@ -1,5 +1,6 @@
 package it.unibo.trace
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -16,6 +17,8 @@ import org.koin.android.ext.android.inject
 import it.unibo.trace.ui.viewmodel.MainViewModel
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
+import it.unibo.trace.data.supabase.supabase
+import io.github.jan.supabase.auth.handleDeeplinks
 
 /**
  * The main entry point of the application.
@@ -30,6 +33,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supabase.handleDeeplinks(intent)
 
         enableEdgeToEdge()
         setContent {
@@ -48,5 +52,11 @@ class MainActivity : FragmentActivity() {
                 NavGraph()
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        supabase.handleDeeplinks(intent)
     }
 }

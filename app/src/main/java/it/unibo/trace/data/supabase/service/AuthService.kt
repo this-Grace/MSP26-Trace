@@ -9,7 +9,7 @@ import io.github.jan.supabase.auth.user.UserInfo
 /**
  * Service class handling authentication logic via Supabase Auth.
  */
-class AuthService(private val supabase: SupabaseClient) {
+class AuthService(supabase: SupabaseClient) {
     private val auth = supabase.auth
 
     /**
