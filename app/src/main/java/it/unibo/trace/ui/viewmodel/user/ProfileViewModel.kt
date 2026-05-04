@@ -15,6 +15,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+import kotlinx.coroutines.flow.update
 
 /**
  * UI State for the Profile screen.
@@ -22,8 +26,16 @@ import java.time.LocalDateTime
 data class ProfileUiState(
     val email: String = "",
     val loginType: String = "",
-    val lastLogin: LocalDateTime? = null
-)
+    val lastLogin: LocalDateTime? = null,
+    val showDeleteDialog: Boolean = false,
+    val deleteConfirmEmail: String = "",
+    val isDeleting: Boolean = false
+) {
+    val formattedLastLogin: String
+        get() = lastLogin?.format(
+            DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", Locale.ITALY)
+        ) ?: "Never"
+}
 
 /**
  * ViewModel for managing user profile data and application theme settings.
@@ -50,12 +62,20 @@ class ProfileViewModel(
 
     private fun loadUserProfile() {
         userService.getProfileInfo()?.let { profile ->
-            _uiState.value = ProfileUiState(
+            _uiState.update { it.copy(
                 email = profile.email,
                 loginType = profile.loginType,
                 lastLogin = profile.lastLogin
-            )
+            ) }
         }
+    }
+
+    fun setShowDeleteDialog(show: Boolean) {
+        _uiState.update { it.copy(showDeleteDialog = show, deleteConfirmEmail = "") }
+    }
+
+    fun updateDeleteConfirmEmail(email: String) {
+        _uiState.update { it.copy(deleteConfirmEmail = email) }
     }
 
     /**
@@ -70,7 +90,7 @@ class ProfileViewModel(
     /**
      * Signs out the current user.
      */
-    fun logout() {
+    fun signOut() {
         viewModelScope.launch {
             try {
                 authService.signOut()
@@ -85,13 +105,21 @@ class ProfileViewModel(
      * Deletes the user account and signs out.
      */
     fun deleteAccount() {
+        if (_uiState.value.showDeleteDialog && _uiState.value.deleteConfirmEmail != _uiState.value.email) {
+            UiMessenger.show("Email does not match")
+            return
+        }
+
         viewModelScope.launch {
+            _uiState.update { it.copy(isDeleting = true) }
             try {
                 userService.deleteAccount()
                 authService.signOut()
                 UiMessenger.show("Account deleted successfully!", MessageDuration.LONG)
             } catch (e: Exception) {
                 UiMessenger.show(e.localizedMessage ?: "Errore eliminazione account")
+            } finally {
+                _uiState.update { it.copy(isDeleting = false, showDeleteDialog = false) }
             }
         }
     }

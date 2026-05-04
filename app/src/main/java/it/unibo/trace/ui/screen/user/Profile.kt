@@ -1,9 +1,11 @@
 package it.unibo.trace.ui.screen.user
 
-import android.hardware.biometrics.BiometricPrompt
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -11,14 +13,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,24 +34,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
-import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
-import it.unibo.trace.ui.composable.ProfileActionButton
-import it.unibo.trace.ui.composable.ProfileInfoItem
+import it.unibo.trace.ui.composable.TraceInfoItem
 import it.unibo.trace.ui.composable.ThemeSelector
+import it.unibo.trace.ui.composable.card.TraceCard
 import it.unibo.trace.ui.composable.TraceTopBar
+import it.unibo.trace.ui.composable.button.TraceButton
+import it.unibo.trace.ui.composable.input.EmailField
 import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import it.unibo.trace.utils.BiometricAuthenticator
-import it.unibo.trace.utils.UiMessenger
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Screen displaying the user's profile information and theme settings.
@@ -74,6 +79,35 @@ fun ProfileScreen(
             .build()
     }
 
+    if (uiState.showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.setShowDeleteDialog(false) },
+            title = { Text("Delete Account") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("This action is irreversible. Please type your email to confirm:")
+                    EmailField(
+                        value = uiState.deleteConfirmEmail,
+                        onValueChange = { viewModel.updateDeleteConfirmEmail(it) }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.deleteAccount() },
+                    enabled = uiState.deleteConfirmEmail == uiState.email
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.setShowDeleteDialog(false) }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -87,8 +121,11 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -103,82 +140,85 @@ fun ProfileScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            TraceCard(title = "Account Information") {
+                TraceInfoItem(
+                    label = "Email",
+                    value = uiState.email,
+                    icon = Icons.Default.Email
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                )
+                TraceInfoItem(
+                    label = "Login Method",
+                    value = uiState.loginType,
+                    icon = Icons.Default.Badge
+                )
+            }
 
-            ElevatedCard(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                ) {
-                    Text(
-                        text = "Informations",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ProfileInfoItem("Email", uiState.email)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ProfileInfoItem("Login type", uiState.loginType)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    ThemeSelector(
-                        selectedTheme = theme,
-                        onThemeSelected = { viewModel.setTheme(it) }
-                    )
-                }
+            TraceCard(title = "Appearance") {
+                ThemeSelector(
+                    selectedTheme = theme,
+                    onThemeSelected = { viewModel.setTheme(it) }
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileActionButton(
-                    text = "DELETE",
-                    icon = Icons.Default.Delete,
-                    color = MaterialTheme.colorScheme.error,
-                    onClick = {
-                        authenticator?.authenticate(
-                            title = "Delete Account",
-                            subtitle = "Verify your identity to proceed",
-                            onSuccess = { viewModel.deleteAccount() },
-                            onError = { code, message ->
-                                if (code != BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED) {
-                                    UiMessenger.show(message)
-                                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    TraceButton(
+                        text = "Delete",
+                        onClick = {
+                            val canAuth = authenticator?.canAuthenticate()
+                            if (canAuth == BiometricManager.BIOMETRIC_SUCCESS) {
+                                authenticator.authenticate(
+                                    title = "Delete Account",
+                                    subtitle = "Verify your identity to proceed",
+                                    onSuccess = { viewModel.deleteAccount() },
+                                    onError = { code, message ->
+                                        if (code != BiometricPrompt.ERROR_USER_CANCELED) {
+                                            viewModel.setShowDeleteDialog(true)
+                                        }
+                                    }
+                                )
+                            } else {
+                                viewModel.setShowDeleteDialog(true)
                             }
-                        )
-                    },
-                    modifier = Modifier.weight(1f)
-                )
+                        },
+                        modifier = Modifier.weight(1f),
+                        icon = {
+                            Icon(Icons.Default.DeleteForever, contentDescription = null)
+                        }
+                    )
 
-                ProfileActionButton(
-                    text = "SIGN OUT",
-                    icon = Icons.AutoMirrored.Filled.Logout,
-                    onClick = { viewModel.logout() },
-                    modifier = Modifier.weight(1f)
+                    TraceButton(
+                        text = "Sign Out",
+                        onClick = { viewModel.signOut() },
+                        modifier = Modifier.weight(1f),
+                        outlined = true,
+                        icon = {
+                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null)
+                        }
+                    )
+                }
+
+                Text(
+                    text = "Last login: ${uiState.formattedLastLogin}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            Text(
-                text = "Last login: ${
-                    uiState.lastLogin?.format(
-                        DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", Locale.ITALY)
-                    ) ?: "Never"
-                }",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

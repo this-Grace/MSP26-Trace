@@ -7,6 +7,11 @@ import androidx.fragment.app.FragmentActivity
 
 class BiometricAuthenticator(private val activity: FragmentActivity) {
 
+    fun canAuthenticate(): Int {
+        val biometricManager = BiometricManager.from(activity)
+        return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+    }
+
     fun authenticate(
         title: String,
         subtitle: String,

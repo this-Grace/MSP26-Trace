@@ -70,7 +70,7 @@ fun AddTodoScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             TraceButton(
-                text = "Sign In",
+                text = "Add",
                 isLoading = uiState.isSaving,
                 onClick = {
                     viewModel.saveTodo(onSuccess = {

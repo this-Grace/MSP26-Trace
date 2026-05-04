@@ -35,49 +35,79 @@ fun NavGraph(
     navController: NavHostController = rememberNavController(),
     mainViewModel: MainViewModel = koinViewModel()
 ) {
-
     val sessionStatus by mainViewModel.sessionStatus.collectAsState()
-
-    LaunchedEffect(sessionStatus) {
-        when (sessionStatus) {
-            is SessionStatus.Authenticated -> {
-                navController.navigate(Route.Home) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-            is SessionStatus.NotAuthenticated -> {
-                navController.navigate(Route.Login) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-            else -> Unit
-        }
-    }
+    val isAuthenticated = sessionStatus is SessionStatus.Authenticated
 
     NavHost(
         navController = navController,
         startDestination = Route.Home
     ) {
         composable<Route.Login> {
-            LoginScreen(navController)
+            UnauthenticatedRoute(isAuthenticated, navController) {
+                LoginScreen(navController)
+            }
         }
         composable<Route.Registration> {
-            RegistrationScreen(navController)
+            UnauthenticatedRoute(isAuthenticated, navController) {
+                RegistrationScreen(navController)
+            }
         }
         composable<Route.ForgotPassword> {
-            ForgotPasswordScreen(navController)
+            UnauthenticatedRoute(isAuthenticated, navController) {
+                ForgotPasswordScreen(navController)
+            }
         }
         composable<Route.ResetPassword> {
             ResetPasswordScreen(navController)
         }
         composable<Route.Home> {
-            HomeScreen(navController)
+            ProtectedRoute(isAuthenticated, navController) {
+                HomeScreen(navController)
+            }
         }
         composable<Route.Profile> {
-            ProfileScreen(navController)
+            ProtectedRoute(isAuthenticated, navController) {
+                ProfileScreen(navController)
+            }
         }
         composable<Route.AddTodo> {
-            AddTodoScreen(navController)
+            ProtectedRoute(isAuthenticated, navController) {
+                AddTodoScreen(navController)
+            }
+        }
+    }
+}
+
+@Composable
+fun ProtectedRoute(
+    isAuthenticated: Boolean,
+    navController: NavHostController,
+    content: @Composable () -> Unit
+) {
+    if (isAuthenticated) {
+        content()
+    } else {
+        LaunchedEffect(Unit) {
+            navController.navigate(Route.Login) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+}
+
+@Composable
+fun UnauthenticatedRoute(
+    isAuthenticated: Boolean,
+    navController: NavHostController,
+    content: @Composable () -> Unit
+) {
+    if (!isAuthenticated) {
+        content()
+    } else {
+        LaunchedEffect(Unit) {
+            navController.navigate(Route.Home) {
+                popUpTo(0) { inclusive = true }
+            }
         }
     }
 }
