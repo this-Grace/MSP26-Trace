@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,21 +23,11 @@ data class RegistrationUiState(
 )
 
 /**
- * One-time events for the Registration screen.
- */
-sealed class RegistrationEvent {
-    data object RegistrationSuccess : RegistrationEvent()
-}
-
-/**
  * ViewModel for handling new user registration.
  */
 class RegistrationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RegistrationUiState())
     val uiState: StateFlow<RegistrationUiState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<RegistrationEvent>()
-    val events = _events.asSharedFlow()
 
     fun updateEmail(email: String) {
         _uiState.update { it.copy(email = email) }
@@ -56,7 +44,7 @@ class RegistrationViewModel : ViewModel() {
     /**
      * Attempts to sign up a new user with email and password.
      */
-    fun signUp() {
+    fun signUp(onSuccess: () -> Unit) {
         val state = _uiState.value
         if (state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank()) {
             UiMessenger.show("Please fill all fields")
@@ -72,7 +60,7 @@ class RegistrationViewModel : ViewModel() {
             try {
                 AuthService.signUp(state.email, state.password)
                 UiMessenger.show("Account created! Please check your email.", MessageDuration.LONG)
-                _events.emit(RegistrationEvent.RegistrationSuccess)
+                onSuccess()
             } catch (e: Exception) {
                 val msg = when {
                     e.message?.contains("already registered", ignoreCase = true) == true -> "Email already in use"
@@ -94,7 +82,7 @@ class RegistrationViewModel : ViewModel() {
             try {
                 AuthService.signInWithGithub()
             } catch (e: Exception) {
-                UiMessenger.show("GitHub Login failed")
+                UiMessenger.show(e.localizedMessage ?: "GitHub Login failed")
             }
         }
     }

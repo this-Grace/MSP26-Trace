@@ -7,10 +7,8 @@ import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.TodoService
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,21 +24,11 @@ data class AddTodoUiState(
 )
 
 /**
- * One-time events for the AddTodo screen.
- */
-sealed class AddTodoEvent {
-    data object SaveSuccess : AddTodoEvent()
-}
-
-/**
  * ViewModel for handling the creation of new Todo tasks.
  */
 class AddTodoViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AddTodoUiState())
     val uiState: StateFlow<AddTodoUiState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<AddTodoEvent>()
-    val events = _events.asSharedFlow()
 
     fun updateTodoName(name: String) {
         _uiState.update { it.copy(todoName = name, errorMessage = null) }
@@ -49,7 +37,7 @@ class AddTodoViewModel : ViewModel() {
     /**
      * Saves a new Todo item to the database.
      */
-    fun saveTodo() {
+    fun saveTodo(onSuccess: () -> Unit) {
         val name = _uiState.value.todoName.trim()
         if (name.isBlank()) {
             _uiState.update { it.copy(errorMessage = "Name cannot be empty") }
@@ -73,7 +61,7 @@ class AddTodoViewModel : ViewModel() {
                 }
 
                 UiMessenger.show("Task created successfully!")
-                _events.emit(AddTodoEvent.SaveSuccess)
+                onSuccess()
             } catch (e: Exception) {
                 val msg = e.localizedMessage ?: "Failed to save todo"
                 _uiState.update { it.copy(errorMessage = msg) }

@@ -3,7 +3,10 @@ package it.unibo.trace.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.data.ThemeRepository
+import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +26,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
 
     val pendingReset: StateFlow<Boolean> = _pendingReset.asStateFlow()
+
+    val sessionStatus: StateFlow<SessionStatus> = supabase.auth.sessionStatus
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = SessionStatus.Initializing
+        )
 
     fun setPendingReset(pending: Boolean) {
         _pendingReset.value = pending
