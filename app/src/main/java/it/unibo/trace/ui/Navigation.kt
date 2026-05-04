@@ -2,12 +2,13 @@ package it.unibo.trace.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.github.jan.supabase.auth.auth
-import it.unibo.trace.data.supabase.supabase
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.ui.screen.AddTodoScreen
 import it.unibo.trace.ui.screen.HomeScreen
 import it.unibo.trace.ui.screen.user.ProfileScreen
@@ -15,7 +16,9 @@ import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.LoginScreen
 import it.unibo.trace.ui.screen.auth.RegistrationScreen
 import it.unibo.trace.ui.screen.auth.ResetPasswordScreen
+import it.unibo.trace.ui.viewmodel.MainViewModel
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 sealed interface Route {
     @Serializable data object Login : Route
@@ -29,11 +32,31 @@ sealed interface Route {
 
 @Composable
 fun NavGraph(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    mainViewModel: MainViewModel = koinViewModel()
 ) {
+
+    val sessionStatus by mainViewModel.sessionStatus.collectAsState()
+
+    LaunchedEffect(sessionStatus) {
+        when (sessionStatus) {
+            is SessionStatus.Authenticated -> {
+                navController.navigate(Route.Home) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+            is SessionStatus.NotAuthenticated -> {
+                navController.navigate(Route.Login) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+            else -> Unit
+        }
+    }
+
     NavHost(
         navController = navController,
-        startDestination = Route.Home
+        startDestination = Route.Login
     ) {
         composable<Route.Login> {
             LoginScreen(navController)
@@ -48,36 +71,13 @@ fun NavGraph(
             ResetPasswordScreen(navController)
         }
         composable<Route.Home> {
-            ProtectedRoute(navController) {
-                HomeScreen(navController)
-            }
+            HomeScreen(navController)
         }
         composable<Route.Profile> {
-            ProtectedRoute(navController) {
-                ProfileScreen(navController)
-            }
+            ProfileScreen(navController)
         }
         composable<Route.AddTodo> {
-            ProtectedRoute(navController) {
-                AddTodoScreen(navController)
-            }
+            AddTodoScreen(navController)
         }
-    }
-}
-
-@Composable
-fun ProtectedRoute(
-    navController: NavHostController,
-    content: @Composable () -> Unit
-) {
-    val session = supabase.auth.currentSessionOrNull()
-    if (session == null) {
-        LaunchedEffect(Unit) {
-            navController.navigate(Route.Login) {
-                popUpTo(Route.Home) { inclusive = true }
-            }
-        }
-    } else {
-        content()
     }
 }

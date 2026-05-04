@@ -12,7 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
-import org.koin.androidx.compose.koinViewModel
+import org.koin.android.ext.android.inject
 import it.unibo.trace.ui.viewmodel.MainViewModel
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
@@ -26,14 +26,13 @@ import it.unibo.trace.utils.UiMessenger
  * - Managing the global application theme via [MainViewModel].
  */
 class MainActivity : FragmentActivity() {
+    private val mainViewModel: MainViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
         setContent {
-            val mainViewModel: MainViewModel = koinViewModel()
-            mainViewModel.handleDeeplink(intent)
             val theme by mainViewModel.theme.collectAsState()
             val context = LocalContext.current
 

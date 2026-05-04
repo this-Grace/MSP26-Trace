@@ -10,11 +10,10 @@ import it.unibo.trace.ui.theme.AppTheme
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import io.github.jan.supabase.auth.handleDeeplinks
 
 class MainViewModel(
-    private val themeRepository: ThemeRepository,
-    private val supabase: SupabaseClient
+    themeRepository: ThemeRepository,
+    supabase: SupabaseClient
 ) : ViewModel() {
 
     val theme: StateFlow<AppTheme> = themeRepository.themeFlow
@@ -30,8 +29,4 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = SessionStatus.Initializing
         )
-
-    fun handleDeeplink(intent: android.content.Intent) {
-        supabase.handleDeeplinks(intent)
-    }
 }

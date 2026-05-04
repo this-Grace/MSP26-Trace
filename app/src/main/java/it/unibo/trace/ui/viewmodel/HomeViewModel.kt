@@ -38,10 +38,6 @@ class HomeViewModel(
 
     private val deletionJobs = mutableMapOf<Long, Job>()
 
-    init {
-        fetchTodos()
-    }
-
     /**
      * Fetches todos belonging to the current authenticated user.
      */
