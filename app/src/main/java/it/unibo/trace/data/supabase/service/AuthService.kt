@@ -1,15 +1,15 @@
 package it.unibo.trace.data.supabase.service
 
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Github
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
-import it.unibo.trace.data.supabase.supabase
 
 /**
- * Service object handling authentication logic via Supabase Auth.
+ * Service class handling authentication logic via Supabase Auth.
  */
-object AuthService {
+class AuthService(private val supabase: SupabaseClient) {
     private val auth = supabase.auth
 
     /**

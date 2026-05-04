@@ -12,10 +12,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import org.koin.androidx.compose.koinViewModel
 import it.unibo.trace.ui.viewmodel.AddTodoViewModel
 import androidx.compose.foundation.layout.Spacer
+import androidx.navigation.NavHostController
 import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.TraceTextField
@@ -27,7 +27,7 @@ import it.unibo.trace.ui.composable.input.TraceTextField
 fun AddTodoScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    viewModel: AddTodoViewModel = viewModel()
+    viewModel: AddTodoViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

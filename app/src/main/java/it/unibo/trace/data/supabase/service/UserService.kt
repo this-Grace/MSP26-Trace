@@ -1,17 +1,17 @@
 package it.unibo.trace.data.supabase.service
 
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import it.unibo.trace.data.supabase.entities.ProfileInfo
-import it.unibo.trace.data.supabase.supabase
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.ZoneId
 import kotlin.time.ExperimentalTime
 
 /**
- * Service object handling user-related operations via Supabase.
+ * Service class handling user-related operations via Supabase.
  */
-object UserService {
+class UserService(private val authService: AuthService, private val supabase: SupabaseClient) {
     /**
      * Deletes the current user's account by calling a remote stored procedure.
      * Note: This only deletes the database record/user via RPC, 
@@ -26,7 +26,7 @@ object UserService {
      */
     @OptIn(ExperimentalTime::class)
     fun getProfileInfo(): ProfileInfo? {
-        val user = AuthService.getCurrentUser() ?: return null
+        val user = authService.getCurrentUser() ?: return null
         
         val lastLoginDate = user.lastSignInAt?.let {
             java.time.Instant.ofEpochMilli(it.toEpochMilliseconds())

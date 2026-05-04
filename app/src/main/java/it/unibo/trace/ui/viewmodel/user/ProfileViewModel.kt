@@ -1,7 +1,6 @@
 package it.unibo.trace.ui.viewmodel.user
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.data.supabase.service.AuthService
@@ -29,8 +28,11 @@ data class ProfileUiState(
 /**
  * ViewModel for managing user profile data and application theme settings.
  */
-class ProfileViewModel(application: Application) : AndroidViewModel(application) {
-    private val themeRepository = ThemeRepository(application)
+class ProfileViewModel(
+    private val themeRepository: ThemeRepository,
+    private val authService: AuthService,
+    private val userService: UserService
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -47,7 +49,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun loadUserProfile() {
-        UserService.getProfileInfo()?.let { profile ->
+        userService.getProfileInfo()?.let { profile ->
             _uiState.value = ProfileUiState(
                 email = profile.email,
                 loginType = profile.loginType,
@@ -71,7 +73,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun logout() {
         viewModelScope.launch {
             try {
-                AuthService.signOut()
+                authService.signOut()
                 UiMessenger.show("Logout done successfully!")
             } catch (e: Exception) {
                 UiMessenger.show(e.localizedMessage ?: "Failed to logout")
@@ -85,8 +87,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun deleteAccount() {
         viewModelScope.launch {
             try {
-                UserService.deleteAccount()
-                AuthService.signOut()
+                userService.deleteAccount()
+                authService.signOut()
                 UiMessenger.show("Account deleted successfully!", MessageDuration.LONG)
             } catch (e: Exception) {
                 UiMessenger.show(e.localizedMessage ?: "Errore eliminazione account")

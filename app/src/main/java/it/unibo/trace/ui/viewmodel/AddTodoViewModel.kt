@@ -26,7 +26,10 @@ data class AddTodoUiState(
 /**
  * ViewModel for handling the creation of new Todo tasks.
  */
-class AddTodoViewModel : ViewModel() {
+class AddTodoViewModel(
+    private val authService: AuthService,
+    private val todoService: TodoService
+) : ViewModel() {
     private val _uiState = MutableStateFlow(AddTodoUiState())
     val uiState: StateFlow<AddTodoUiState> = _uiState.asStateFlow()
 
@@ -47,7 +50,7 @@ class AddTodoViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
             try {
-                val user = AuthService.getCurrentUser()
+                val user = authService.getCurrentUser()
                 if (user == null) {
                     _uiState.update { it.copy(isSaving = false) }
                     UiMessenger.show("User not logged in")
@@ -57,7 +60,7 @@ class AddTodoViewModel : ViewModel() {
                 val newTodo = TodoItem(name = name, uid = user.id)
 
                 withContext(Dispatchers.IO) {
-                    TodoService.insertTodo(newTodo)
+                    todoService.insertTodo(newTodo)
                 }
 
                 UiMessenger.show("Task created successfully!")

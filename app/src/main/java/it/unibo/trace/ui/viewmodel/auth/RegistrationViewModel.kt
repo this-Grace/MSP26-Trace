@@ -25,7 +25,7 @@ data class RegistrationUiState(
 /**
  * ViewModel for handling new user registration.
  */
-class RegistrationViewModel : ViewModel() {
+class RegistrationViewModel(private val authService: AuthService) : ViewModel() {
     private val _uiState = MutableStateFlow(RegistrationUiState())
     val uiState: StateFlow<RegistrationUiState> = _uiState.asStateFlow()
 
@@ -58,7 +58,7 @@ class RegistrationViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                AuthService.signUp(state.email, state.password)
+                authService.signUp(state.email, state.password)
                 UiMessenger.show("Account created! Please check your email.", MessageDuration.LONG)
                 onSuccess()
             } catch (e: Exception) {
@@ -80,7 +80,7 @@ class RegistrationViewModel : ViewModel() {
     fun signUpWithGithub() {
         viewModelScope.launch {
             try {
-                AuthService.signInWithGithub()
+                authService.signInWithGithub()
             } catch (e: Exception) {
                 UiMessenger.show(e.localizedMessage ?: "GitHub Login failed")
             }

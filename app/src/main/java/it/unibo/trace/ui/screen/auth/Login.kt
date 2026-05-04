@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import org.koin.androidx.compose.koinViewModel
 import it.unibo.trace.R
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.button.SocialSignInButton
@@ -36,7 +36,7 @@ import it.unibo.trace.ui.viewmodel.auth.LoginViewModel
 @Composable
 fun LoginScreen(
     navController: NavHostController,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

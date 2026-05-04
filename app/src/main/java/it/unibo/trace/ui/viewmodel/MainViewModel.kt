@@ -1,19 +1,21 @@
 package it.unibo.trace.ui.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.data.ThemeRepository
-import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.theme.AppTheme
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import io.github.jan.supabase.auth.handleDeeplinks
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val themeRepository = ThemeRepository(application)
+class MainViewModel(
+    private val themeRepository: ThemeRepository,
+    private val supabase: SupabaseClient
+) : ViewModel() {
 
     val theme: StateFlow<AppTheme> = themeRepository.themeFlow
         .stateIn(
@@ -28,4 +30,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = SessionStatus.Initializing
         )
+
+    fun handleDeeplink(intent: android.content.Intent) {
+        supabase.handleDeeplinks(intent)
+    }
 }

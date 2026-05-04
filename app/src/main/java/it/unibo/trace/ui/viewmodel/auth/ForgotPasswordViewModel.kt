@@ -22,7 +22,7 @@ data class ForgotPasswordUiState(
 /**
  * ViewModel for handling password reset requests via email.
  */
-class ForgotPasswordViewModel : ViewModel() {
+class ForgotPasswordViewModel(private val authService: AuthService) : ViewModel() {
     private val _uiState = MutableStateFlow(ForgotPasswordUiState())
     val uiState: StateFlow<ForgotPasswordUiState> = _uiState.asStateFlow()
 
@@ -43,7 +43,7 @@ class ForgotPasswordViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                AuthService.sendResetPasswordEmail(email)
+                authService.sendResetPasswordEmail(email)
                 UiMessenger.show("Instructions sent! Please check your inbox.", MessageDuration.LONG)
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("network", ignoreCase = true) == true) {

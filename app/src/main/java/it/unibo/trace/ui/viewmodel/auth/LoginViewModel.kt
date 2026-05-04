@@ -23,7 +23,7 @@ data class LoginUiState(
 /**
  * ViewModel for handling user authentication (Email/Password and GitHub).
  */
-class LoginViewModel : ViewModel() {
+class LoginViewModel(private val authService: AuthService) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
@@ -48,7 +48,7 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                AuthService.signIn(state.email, state.password)
+                authService.signIn(state.email, state.password)
             } catch (e: Exception) {
                 val msg = when {
                     e.message?.contains("invalid", ignoreCase = true) == true -> "Invalid email or password"
@@ -68,7 +68,7 @@ class LoginViewModel : ViewModel() {
     fun signInWithGithub() {
         viewModelScope.launch {
             try {
-                AuthService.signInWithGithub()
+                authService.signInWithGithub()
             } catch (e: Exception) {
                 UiMessenger.show(e.localizedMessage ?: "GitHub Login failed")
             }

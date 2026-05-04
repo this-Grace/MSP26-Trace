@@ -24,7 +24,7 @@ data class ResetPasswordUiState(
 /**
  * ViewModel for handling password updates (e.g., after clicking a reset link).
  */
-class ResetPasswordViewModel : ViewModel() {
+class ResetPasswordViewModel(private val authService: AuthService) : ViewModel() {
     private val _uiState = MutableStateFlow(ResetPasswordUiState())
     val uiState: StateFlow<ResetPasswordUiState> = _uiState.asStateFlow()
 
@@ -49,7 +49,7 @@ class ResetPasswordViewModel : ViewModel() {
             UiMessenger.show("Passwords do not match")
             return
         }
-        if (AuthService.getCurrentUser() == null) {
+        if (authService.getCurrentUser() == null) {
             UiMessenger.show("Reset link expired or invalid. Please request a new one.")
             return
         }
@@ -57,8 +57,8 @@ class ResetPasswordViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                AuthService.updatePassword(state.password)
-                AuthService.signOut()
+                authService.updatePassword(state.password)
+                authService.signOut()
                 UiMessenger.show("Password updated successfully!", MessageDuration.LONG)
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("sign out", ignoreCase = true) == true) {

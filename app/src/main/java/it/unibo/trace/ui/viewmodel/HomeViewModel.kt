@@ -29,7 +29,10 @@ data class HomeUiState(
 /**
  * ViewModel for managing the main Todo list and task completion logic.
  */
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val authService: AuthService,
+    private val todoService: TodoService
+) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -46,7 +49,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                val user = AuthService.getCurrentUser()
+                val user = authService.getCurrentUser()
                 if (user == null) {
                     _uiState.update { it.copy(isLoading = false) }
                     UiMessenger.show("User not authenticated")
@@ -54,7 +57,7 @@ class HomeViewModel : ViewModel() {
                 }
 
                 val list = withContext(Dispatchers.IO) {
-                    TodoService.getTodos(user.id)
+                    todoService.getTodos(user.id)
                 }
                 _uiState.update { it.copy(items = list, errorMessage = null) }
             } catch (e: Exception) {
@@ -85,7 +88,7 @@ class HomeViewModel : ViewModel() {
     private suspend fun deleteTodo(todoId: Long) {
         try {
             withContext(Dispatchers.IO) {
-                TodoService.deleteTodo(todoId)
+                todoService.deleteTodo(todoId)
             }
             _uiState.update { state ->
                 state.copy(

@@ -5,8 +5,6 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
-import io.github.jan.supabase.auth.handleDeeplinks
-import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.NavGraph
 import it.unibo.trace.ui.theme.TraceTheme
 
@@ -14,7 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import it.unibo.trace.ui.viewmodel.MainViewModel
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
@@ -32,10 +30,10 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        supabase.handleDeeplinks(intent)
         enableEdgeToEdge()
         setContent {
-            val mainViewModel: MainViewModel = viewModel()
+            val mainViewModel: MainViewModel = koinViewModel()
+            mainViewModel.handleDeeplink(intent)
             val theme by mainViewModel.theme.collectAsState()
             val context = LocalContext.current
 

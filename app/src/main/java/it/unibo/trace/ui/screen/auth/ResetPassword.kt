@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import org.koin.androidx.compose.koinViewModel
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.PasswordField
 import it.unibo.trace.ui.viewmodel.auth.ResetPasswordViewModel
@@ -28,7 +28,7 @@ import it.unibo.trace.ui.viewmodel.auth.ResetPasswordViewModel
 @Composable
 fun ResetPasswordScreen(
     navController: NavHostController,
-    viewModel: ResetPasswordViewModel = viewModel()
+    viewModel: ResetPasswordViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
