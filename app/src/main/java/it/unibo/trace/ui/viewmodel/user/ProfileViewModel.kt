@@ -62,11 +62,13 @@ class ProfileViewModel(
 
     private fun loadUserProfile() {
         userService.getProfileInfo()?.let { profile ->
-            _uiState.update { it.copy(
-                email = profile.email,
-                loginType = profile.loginType,
-                lastLogin = profile.lastLogin
-            ) }
+            _uiState.update {
+                it.copy(
+                    email = profile.email,
+                    loginType = profile.loginType,
+                    lastLogin = profile.lastLogin
+                )
+            }
         }
     }
 
@@ -117,7 +119,7 @@ class ProfileViewModel(
                 authService.signOut()
                 UiMessenger.show("Account deleted successfully!", MessageDuration.LONG)
             } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "Errore eliminazione account")
+                UiMessenger.show(e.localizedMessage ?: "Error deleting account")
             } finally {
                 _uiState.update { it.copy(isDeleting = false, showDeleteDialog = false) }
             }

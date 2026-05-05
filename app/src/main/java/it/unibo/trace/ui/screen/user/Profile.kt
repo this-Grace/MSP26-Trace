@@ -95,7 +95,7 @@ fun ProfileScreen(
             confirmButton = {
                 TextButton(
                     onClick = { viewModel.deleteAccount() },
-                    enabled = uiState.deleteConfirmEmail == uiState.email
+                    enabled = !uiState.isDeleting
                 ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }
@@ -186,7 +186,7 @@ fun ProfileScreen(
                                     title = "Delete Account",
                                     subtitle = "Verify your identity to proceed",
                                     onSuccess = { viewModel.deleteAccount() },
-                                    onError = { code, message ->
+                                    onError = { code, _ ->
                                         if (code != BiometricPrompt.ERROR_USER_CANCELED) {
                                             viewModel.setShowDeleteDialog(true)
                                         }
