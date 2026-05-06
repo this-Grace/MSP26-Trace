@@ -1,5 +1,6 @@
 package it.unibo.trace.utils
 
+import android.widget.Toast
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -24,7 +25,7 @@ object UiMessenger {
      * @param text The string content of the message.
      * @param duration The display duration (SHORT or LONG). Defaults to [MessageDuration.SHORT].
      */
-    fun show(text: String, duration: MessageDuration = MessageDuration.SHORT) {
+    fun show(text: String, duration: Int = MessageDuration.SHORT) {
         _messages.tryEmit(UserMessage(text, duration))
     }
 }
@@ -35,9 +36,12 @@ object UiMessenger {
  * @property text The message content.
  * @property duration How long the message should be visible.
  */
-data class UserMessage(val text: String, val duration: MessageDuration)
+data class UserMessage(val text: String, val duration: Int)
 
 /**
  * Defines the duration for which a UI message is displayed.
  */
-enum class MessageDuration { SHORT, LONG }
+object MessageDuration {
+    const val SHORT = Toast.LENGTH_SHORT
+    const val LONG = Toast.LENGTH_LONG
+}

@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import org.koin.android.ext.android.inject
 import it.unibo.trace.ui.viewmodel.MainViewModel
-import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
 import it.unibo.trace.data.supabase.supabase
 import io.github.jan.supabase.auth.handleDeeplinks
@@ -42,9 +41,7 @@ class MainActivity : FragmentActivity() {
 
             LaunchedEffect(Unit) {
                 UiMessenger.messages.collect { message ->
-                    val duration = if (message.duration == MessageDuration.LONG)
-                        Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-                    Toast.makeText(context, message.text, duration).show()
+                    Toast.makeText(context, message.text, message.duration).show()
                 }
             }
 
