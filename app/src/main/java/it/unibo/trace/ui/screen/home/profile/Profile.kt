@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.profile
+package it.unibo.trace.ui.screen.home.profile
 
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt

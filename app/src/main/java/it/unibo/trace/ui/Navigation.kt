@@ -9,9 +9,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.jan.supabase.auth.status.SessionStatus
-import it.unibo.trace.ui.screen.todo.AddTodoScreen
+import it.unibo.trace.ui.screen.home.todo.AddTodoScreen
 import it.unibo.trace.ui.screen.home.HomeScreen
-import it.unibo.trace.ui.screen.profile.ProfileScreen
+import it.unibo.trace.ui.screen.home.profile.ProfileScreen
 import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.signin.SignInScreen
 import it.unibo.trace.ui.screen.auth.singup.SignUpScreen

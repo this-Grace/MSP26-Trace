@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.todo
+package it.unibo.trace.ui.screen.home.todo
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
