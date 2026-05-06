@@ -21,30 +21,6 @@ enum class AppTheme {
     SYSTEM
 }
 
-private val DarkColorScheme = darkColorScheme(
-    primary = cyan,
-    secondary = pink,
-    onPrimary = black,
-    primaryContainer = cyan,
-    onPrimaryContainer = black,
-    surface = black,
-    onSurface = white,
-    background = black,
-    onBackground = white,
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = blue,
-    secondary = pink,
-    onPrimary = white,
-    primaryContainer = blue,
-    onPrimaryContainer = white,
-    surface = white,
-    onSurface = black,
-    background = white,
-    onBackground = black,
-)
-
 @Composable
 fun TraceTheme(
     appTheme: AppTheme = AppTheme.SYSTEM,
@@ -64,8 +40,8 @@ fun TraceTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> darkColorScheme()
+        else -> lightColorScheme()
     }
 
     val view = LocalView.current

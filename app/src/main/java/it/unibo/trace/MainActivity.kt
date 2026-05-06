@@ -1,18 +1,23 @@
 package it.unibo.trace
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import io.github.jan.supabase.auth.handleDeeplinks
-import it.unibo.trace.data.supabase.supabase
+import androidx.compose.runtime.LaunchedEffect
 import it.unibo.trace.ui.NavGraph
 import it.unibo.trace.ui.theme.TraceTheme
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
-import it.unibo.trace.ui.viewmodel.MainViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.FragmentActivity
+import org.koin.android.ext.android.inject
+import it.unibo.trace.ui.MainViewModel
+import it.unibo.trace.utils.UiMessenger
+import it.unibo.trace.data.supabase.supabase
+import io.github.jan.supabase.auth.handleDeeplinks
 
 /**
  * The main entry point of the application.
@@ -22,19 +27,33 @@ import it.unibo.trace.ui.viewmodel.MainViewModel
  * - Initializing the Compose UI content.
  * - Managing the global application theme via [MainViewModel].
  */
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
+    private val mainViewModel: MainViewModel by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         supabase.handleDeeplinks(intent)
+
         enableEdgeToEdge()
         setContent {
-            val mainViewModel: MainViewModel = viewModel()
             val theme by mainViewModel.theme.collectAsState()
+            val context = LocalContext.current
+
+            LaunchedEffect(Unit) {
+                UiMessenger.messages.collect { message ->
+                    Toast.makeText(context, message.text, message.duration).show()
+                }
+            }
 
             TraceTheme(appTheme = theme) {
                 NavGraph()
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        supabase.handleDeeplinks(intent)
     }
 }

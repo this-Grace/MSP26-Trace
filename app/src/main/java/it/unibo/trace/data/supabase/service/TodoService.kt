@@ -1,15 +1,15 @@
 package it.unibo.trace.data.supabase.service
 
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
 import it.unibo.trace.data.supabase.entities.TodoItem
-import it.unibo.trace.data.supabase.supabase
 
 /**
- * Service object handling direct CRUD operations for Todo items via Supabase Postgrest.
+ * Service class handling direct CRUD operations for Todo items via Supabase Postgrest.
  */
-object TodoService {
-    private const val TABLE_NAME = "Todos"
+class TodoService(private val supabase: SupabaseClient) {
+    private val TABLE_NAME = "Todos"
 
     /**
      * Fetches all todos belonging to a specific user, ordered by ID descending.
