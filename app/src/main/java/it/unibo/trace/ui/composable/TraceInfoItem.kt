@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
- * A generic information item component.
+ * Generic information item component.
  * Displays a label and a value, optionally with an icon.
  */
 @Composable

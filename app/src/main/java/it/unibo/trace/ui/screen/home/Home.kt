@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.composable.TodoCard
+import it.unibo.trace.ui.composable.card.TodoCard
 import it.unibo.trace.ui.composable.TraceTopBar
 
 /**

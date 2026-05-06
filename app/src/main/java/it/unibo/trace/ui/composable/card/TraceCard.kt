@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.composable.card
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -17,16 +18,18 @@ import androidx.compose.ui.unit.dp
 
 /**
  * A generic card component for the application.
- * Can optionally display a title above the card.
+ * Can optionally display a title above the card and handle click events.
  *
  * @param title Optional title to display above the card.
  * @param modifier Modifier for the outer container.
+ * @param onClick Optional callback for click events on the card.
  * @param content The content to display inside the card.
  */
 @Composable
 fun TraceCard(
     modifier: Modifier = Modifier,
     title: String? = null,
+    onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -42,7 +45,11 @@ fun TraceCard(
             )
         }
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (onClick != null) Modifier.clickable { onClick() } else Modifier
+                ),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
