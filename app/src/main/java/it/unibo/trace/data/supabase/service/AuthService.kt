@@ -4,6 +4,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Github
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.auth.providers.builtin.OTP
 import io.github.jan.supabase.auth.user.UserInfo
 
 /**
@@ -19,6 +20,16 @@ class AuthService(supabase: SupabaseClient) {
         auth.signInWith(Email) {
             this.email = email
             password = pass
+        }
+    }
+
+    /**
+     * Sends a magic link to the user's email for authentication.
+     */
+    suspend fun sendMagicLink(email: String) {
+        auth.signInWith(OTP) {
+            this.email = email
+            createUser = true
         }
     }
 

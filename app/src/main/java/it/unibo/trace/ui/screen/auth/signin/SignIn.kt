@@ -90,6 +90,14 @@ fun SignInScreen(
                 onClick = { viewModel.signIn() }
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TraceButton(
+                text = "Sign in with Magic Link",
+                outlined = true,
+                onClick = { navController.navigate(Route.MagicLink) }
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
             TraceSeparator(text = "OR")
