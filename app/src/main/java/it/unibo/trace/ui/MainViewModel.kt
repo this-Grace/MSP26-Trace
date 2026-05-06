@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.viewmodel
+package it.unibo.trace.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen
+package it.unibo.trace.ui.screen.todo
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
-import it.unibo.trace.ui.viewmodel.AddTodoViewModel
 import androidx.compose.foundation.layout.Spacer
 import androidx.navigation.NavHostController
 import it.unibo.trace.ui.composable.TraceTopBar

@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.viewmodel.auth
+package it.unibo.trace.ui.screen.auth.signin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 /**
  * UI State for the Login screen.
  */
-data class LoginUiState(
+data class SignInUiState(
     val email: String = "",
     val password: String = "",
     val isPasswordVisible: Boolean = false,
@@ -23,9 +23,9 @@ data class LoginUiState(
 /**
  * ViewModel for handling user authentication (Email/Password and GitHub).
  */
-class LoginViewModel(private val authService: AuthService) : ViewModel() {
-    private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+class SignInViewModel(private val authService: AuthService) : ViewModel() {
+    private val _uiState = MutableStateFlow(SignInUiState())
+    val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
 
     fun updateEmail(email: String) {
         _uiState.update { it.copy(email = email) }

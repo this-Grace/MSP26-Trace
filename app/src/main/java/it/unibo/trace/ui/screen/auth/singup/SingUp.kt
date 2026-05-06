@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.auth
+package it.unibo.trace.ui.screen.auth.singup
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,22 +16,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
+import it.unibo.trace.R
+import it.unibo.trace.ui.composable.button.SocialSignInButton
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.EmailField
-import it.unibo.trace.ui.viewmodel.auth.ForgotPasswordViewModel
+import it.unibo.trace.ui.composable.input.PasswordField
+import it.unibo.trace.ui.composable.separator.TraceSeparator
 
 /**
- * Screen for requesting a password reset link.
+ * Screen for new user registration.
  */
 @Composable
-fun ForgotPasswordScreen(
+fun SignUpScreen(
     navController: NavHostController,
-    viewModel: ForgotPasswordViewModel = koinViewModel()
+    viewModel: SignUpViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -45,7 +48,7 @@ fun ForgotPasswordScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Forgot Password",
+                text = "Join " + stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold
@@ -54,44 +57,63 @@ fun ForgotPasswordScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Enter your email address and we will send you a link to reset your password.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             EmailField(
                 value = uiState.email,
                 onValueChange = { viewModel.updateEmail(it) }
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            PasswordField(
+                value = uiState.password,
+                label = "Password",
+                placeholder = "Insert Password",
+                onValueChange = { viewModel.updatePassword(it) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            PasswordField(
+                value = uiState.confirmPassword,
+                label = "Confirm Password",
+                placeholder = "Confirm Password",
+                onValueChange = { viewModel.updateConfirmPassword(it) }
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
 
             TraceButton(
-                text = "Send Reset Link",
+                text = "Sign Up",
                 isLoading = uiState.isLoading,
-                onClick = { viewModel.sendResetLink() }
+                onClick = { viewModel.signUp(onSuccess = {
+                    navController.popBackStack()
+                }) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TraceSeparator(text = "OR")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SocialSignInButton(
+                text = "Sign in with GitHub",
+                iconRes = R.drawable.ic_github_logo,
+                onClick = { viewModel.signUpWithGithub() }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Row {
                 Text(
-                    "Remember password? ",
-                    style = MaterialTheme.typography.bodyMedium,
+                    "Already have an account? ",
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     "Sign In",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.clickable { 
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable {
                         navController.popBackStack()
                     }
                 )

@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.viewmodel.user
+package it.unibo.trace.ui.screen.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

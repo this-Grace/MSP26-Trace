@@ -6,14 +6,14 @@ import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.TodoService
 import it.unibo.trace.data.supabase.service.UserService
 import it.unibo.trace.data.supabase.supabase
-import it.unibo.trace.ui.viewmodel.AddTodoViewModel
-import it.unibo.trace.ui.viewmodel.HomeViewModel
-import it.unibo.trace.ui.viewmodel.MainViewModel
-import it.unibo.trace.ui.viewmodel.auth.ForgotPasswordViewModel
-import it.unibo.trace.ui.viewmodel.auth.LoginViewModel
-import it.unibo.trace.ui.viewmodel.auth.RegistrationViewModel
-import it.unibo.trace.ui.viewmodel.auth.ResetPasswordViewModel
-import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
+import it.unibo.trace.ui.screen.todo.AddTodoViewModel
+import it.unibo.trace.ui.screen.home.HomeViewModel
+import it.unibo.trace.ui.MainViewModel
+import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordViewModel
+import it.unibo.trace.ui.screen.auth.signin.SignInViewModel
+import it.unibo.trace.ui.screen.auth.singup.SignUpViewModel
+import it.unibo.trace.ui.screen.auth.resetpassword.ResetPasswordViewModel
+import it.unibo.trace.ui.screen.profile.ProfileViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -34,8 +34,8 @@ val viewModelModule = module {
     viewModel { HomeViewModel(get(), get()) }
     viewModel { AddTodoViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
-    viewModel { LoginViewModel(get()) }
-    viewModel { RegistrationViewModel(get()) }
+    viewModel { SignInViewModel(get()) }
+    viewModel { SignUpViewModel(get()) }
     viewModel { ForgotPasswordViewModel(get()) }
     viewModel { ResetPasswordViewModel(get()) }
 }

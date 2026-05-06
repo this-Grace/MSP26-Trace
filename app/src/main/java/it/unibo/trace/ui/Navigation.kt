@@ -9,14 +9,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.jan.supabase.auth.status.SessionStatus
-import it.unibo.trace.ui.screen.AddTodoScreen
-import it.unibo.trace.ui.screen.HomeScreen
-import it.unibo.trace.ui.screen.user.ProfileScreen
-import it.unibo.trace.ui.screen.auth.ForgotPasswordScreen
-import it.unibo.trace.ui.screen.auth.LoginScreen
-import it.unibo.trace.ui.screen.auth.RegistrationScreen
-import it.unibo.trace.ui.screen.auth.ResetPasswordScreen
-import it.unibo.trace.ui.viewmodel.MainViewModel
+import it.unibo.trace.ui.screen.todo.AddTodoScreen
+import it.unibo.trace.ui.screen.home.HomeScreen
+import it.unibo.trace.ui.screen.profile.ProfileScreen
+import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordScreen
+import it.unibo.trace.ui.screen.auth.signin.SignInScreen
+import it.unibo.trace.ui.screen.auth.singup.SignUpScreen
+import it.unibo.trace.ui.screen.auth.resetpassword.ResetPasswordScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
@@ -44,12 +43,12 @@ fun NavGraph(
     ) {
         composable<Route.Login> {
             UnauthenticatedRoute(isAuthenticated, navController) {
-                LoginScreen(navController)
+                SignInScreen(navController)
             }
         }
         composable<Route.Registration> {
             UnauthenticatedRoute(isAuthenticated, navController) {
-                RegistrationScreen(navController)
+                SignUpScreen(navController)
             }
         }
         composable<Route.ForgotPassword> {

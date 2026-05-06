@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.viewmodel.auth
+package it.unibo.trace.ui.screen.auth.singup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 /**
  * UI State for the Registration screen.
  */
-data class RegistrationUiState(
+data class SignUpUiState(
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
@@ -25,9 +25,9 @@ data class RegistrationUiState(
 /**
  * ViewModel for handling new user registration.
  */
-class RegistrationViewModel(private val authService: AuthService) : ViewModel() {
-    private val _uiState = MutableStateFlow(RegistrationUiState())
-    val uiState: StateFlow<RegistrationUiState> = _uiState.asStateFlow()
+class SignUpViewModel(private val authService: AuthService) : ViewModel() {
+    private val _uiState = MutableStateFlow(SignUpUiState())
+    val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
 
     fun updateEmail(email: String) {
         _uiState.update { it.copy(email = email) }

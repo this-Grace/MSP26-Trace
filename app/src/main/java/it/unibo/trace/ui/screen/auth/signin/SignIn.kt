@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.auth
+package it.unibo.trace.ui.screen.auth.signin
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,20 +22,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
 import it.unibo.trace.R
+import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.button.SocialSignInButton
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.EmailField
 import it.unibo.trace.ui.composable.input.PasswordField
 import it.unibo.trace.ui.composable.separator.TraceSeparator
-import it.unibo.trace.ui.viewmodel.auth.RegistrationViewModel
 
 /**
- * Screen for new user registration.
+ * Screen for user login via email/password or third-party providers.
  */
 @Composable
-fun RegistrationScreen(
+fun SignInScreen(
     navController: NavHostController,
-    viewModel: RegistrationViewModel = koinViewModel()
+    viewModel: SignInViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -49,7 +49,7 @@ fun RegistrationScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Join " + stringResource(R.string.app_name),
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold
@@ -72,23 +72,22 @@ fun RegistrationScreen(
                 onValueChange = { viewModel.updatePassword(it) }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PasswordField(
-                value = uiState.confirmPassword,
-                label = "Confirm Password",
-                placeholder = "Confirm Password",
-                onValueChange = { viewModel.updateConfirmPassword(it) }
+            Text(
+                text = "Forgot Password?",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 8.dp)
+                    .clickable { navController.navigate(Route.ForgotPassword) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             TraceButton(
-                text = "Sign Up",
+                text = "Sign In",
                 isLoading = uiState.isLoading,
-                onClick = { viewModel.signUp(onSuccess = {
-                    navController.popBackStack()
-                }) }
+                onClick = { viewModel.signIn() }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -100,22 +99,22 @@ fun RegistrationScreen(
             SocialSignInButton(
                 text = "Sign in with GitHub",
                 iconRes = R.drawable.ic_github_logo,
-                onClick = { viewModel.signUpWithGithub() }
+                onClick = { viewModel.signInWithGithub() }
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Row {
                 Text(
-                    "Already have an account? ",
+                    "New to TRACE? ",
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    "Sign In",
+                    "Sign Up",
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {
-                        navController.popBackStack()
+                        navController.navigate(Route.Registration)
                     }
                 )
             }

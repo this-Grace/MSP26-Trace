@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen
+package it.unibo.trace.ui.screen.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,7 +31,6 @@ import androidx.navigation.NavHostController
 import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.TodoCard
 import it.unibo.trace.ui.composable.TraceTopBar
-import it.unibo.trace.ui.viewmodel.HomeViewModel
 
 /**
  * The main screen of the application, displaying a list of tasks.

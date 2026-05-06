@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.user
+package it.unibo.trace.ui.screen.profile
 
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -46,7 +46,6 @@ import it.unibo.trace.ui.composable.card.TraceCard
 import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.EmailField
-import it.unibo.trace.ui.viewmodel.user.ProfileViewModel
 import it.unibo.trace.utils.BiometricAuthenticator
 import org.koin.androidx.compose.koinViewModel
 

@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.auth
+package it.unibo.trace.ui.screen.auth.forgotpassword
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,27 +16,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
-import it.unibo.trace.R
-import it.unibo.trace.ui.Route
-import it.unibo.trace.ui.composable.button.SocialSignInButton
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.EmailField
-import it.unibo.trace.ui.composable.input.PasswordField
-import it.unibo.trace.ui.composable.separator.TraceSeparator
-import it.unibo.trace.ui.viewmodel.auth.LoginViewModel
 
 /**
- * Screen for user login via email/password or third-party providers.
+ * Screen for requesting a password reset link.
  */
 @Composable
-fun LoginScreen(
+fun ForgotPasswordScreen(
     navController: NavHostController,
-    viewModel: LoginViewModel = koinViewModel()
+    viewModel: ForgotPasswordViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -50,7 +44,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stringResource(R.string.app_name),
+                text = "Forgot Password",
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold
@@ -59,63 +53,45 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            Text(
+                text = "Enter your email address and we will send you a link to reset your password.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             EmailField(
                 value = uiState.email,
                 onValueChange = { viewModel.updateEmail(it) }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            PasswordField(
-                value = uiState.password,
-                label = "Password",
-                placeholder = "Insert Password",
-                onValueChange = { viewModel.updatePassword(it) }
-            )
-
-            Text(
-                text = "Forgot Password?",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(top = 8.dp)
-                    .clickable { navController.navigate(Route.ForgotPassword) }
+            TraceButton(
+                text = "Send Reset Link",
+                isLoading = uiState.isLoading,
+                onClick = { viewModel.sendResetLink() }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            TraceButton(
-                text = "Sign In",
-                isLoading = uiState.isLoading,
-                onClick = { viewModel.signIn() }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TraceSeparator(text = "OR")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SocialSignInButton(
-                text = "Sign in with GitHub",
-                iconRes = R.drawable.ic_github_logo,
-                onClick = { viewModel.signInWithGithub() }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             Row {
                 Text(
-                    "New to TRACE? ",
+                    "Remember password? ",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    "Sign Up",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.clickable {
-                        navController.navigate(Route.Registration)
+                    "Sign In",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.clickable { 
+                        navController.popBackStack()
                     }
                 )
             }

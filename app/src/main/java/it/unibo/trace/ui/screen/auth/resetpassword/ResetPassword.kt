@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.auth
+package it.unibo.trace.ui.screen.auth.resetpassword
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,6 @@ import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.PasswordField
-import it.unibo.trace.ui.viewmodel.auth.ResetPasswordViewModel
 
 /**
  * Screen for setting a new password after a reset request.

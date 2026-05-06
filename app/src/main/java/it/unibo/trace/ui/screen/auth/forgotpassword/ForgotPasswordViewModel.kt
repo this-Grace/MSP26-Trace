@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.viewmodel.auth
+package it.unibo.trace.ui.screen.auth.forgotpassword
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
