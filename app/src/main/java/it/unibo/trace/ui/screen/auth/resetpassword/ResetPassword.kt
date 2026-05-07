@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -68,7 +68,7 @@ fun ResetPasswordScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             PasswordField(
-                value = uiState.password,
+                value = uiState.confirmPassword,
                 label = "Confirm Password",
                 placeholder = "Confirm Password",
                 onValueChange = { viewModel.updateConfirmPassword(it) }
@@ -79,7 +79,7 @@ fun ResetPasswordScreen(
             TraceButton(
                 text = "Update Password",
                 isLoading = uiState.isLoading,
-                onClick = { viewModel.updatePassword() }
+                onClick = { viewModel.updatePassword(navController) }
             )
         }
     }

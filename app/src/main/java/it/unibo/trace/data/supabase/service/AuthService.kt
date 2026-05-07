@@ -63,7 +63,7 @@ class AuthService(supabase: SupabaseClient) {
     suspend fun sendResetPasswordEmail(email: String) {
         auth.resetPasswordForEmail(
             email,
-            "it.unibo.trace://login-callback"
+            "it.unibo.trace://reset-password"
         )
     }
 

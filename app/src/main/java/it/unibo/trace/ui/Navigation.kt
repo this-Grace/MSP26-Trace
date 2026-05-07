@@ -39,6 +39,16 @@ fun NavGraph(
     val sessionStatus by mainViewModel.sessionStatus.collectAsState()
     val isAuthenticated = sessionStatus is SessionStatus.Authenticated
 
+    LaunchedEffect(Unit) {
+        mainViewModel.navigationEvent.collect { routeStr ->
+            if (routeStr == "reset-password") {
+                navController.navigate(Route.ResetPassword) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = Route.Home

@@ -2,7 +2,9 @@ package it.unibo.trace.ui.screen.auth.resetpassword
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import it.unibo.trace.data.supabase.service.AuthService
+import it.unibo.trace.ui.Route
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +41,7 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
     /**
      * Updates the user's password in Supabase.
      */
-    fun updatePassword() {
+    fun updatePassword(navController: NavHostController) {
         val state = _uiState.value
         if (state.password.isBlank() || state.confirmPassword.isBlank()) {
             UiMessenger.show("Please fill all fields")
@@ -49,24 +51,18 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
             UiMessenger.show("Passwords do not match")
             return
         }
-        if (authService.getCurrentUser() == null) {
-            UiMessenger.show("Reset link expired or invalid. Please request a new one.")
-            return
-        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.updatePassword(state.password)
-                authService.signOut()
                 UiMessenger.show("Password updated successfully!", MessageDuration.LONG)
-            } catch (e: Exception) {
-                val msg = if (e.message?.contains("sign out", ignoreCase = true) == true) {
-                    "Password updated, but sign out failed. Please open the app again."
-                } else {
-                    "Failed to update password. Try again."
+                authService.signOut()
+                navController.navigate(Route.Login) {
+                    popUpTo(0) { inclusive = true }
                 }
-                UiMessenger.show(msg)
+            } catch (e: Exception) {
+                UiMessenger.show("Error: ${e.localizedMessage}")
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
