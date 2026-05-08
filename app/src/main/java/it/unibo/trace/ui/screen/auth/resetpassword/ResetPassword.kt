@@ -9,14 +9,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import it.unibo.trace.ui.Route
 import org.koin.androidx.compose.koinViewModel
 import it.unibo.trace.ui.composable.button.TraceButton
 import it.unibo.trace.ui.composable.input.PasswordField
@@ -30,6 +32,14 @@ fun ResetPasswordScreen(
     viewModel: ResetPasswordViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(Route.Login) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
@@ -68,7 +78,7 @@ fun ResetPasswordScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             PasswordField(
-                value = uiState.password,
+                value = uiState.confirmPassword,
                 label = "Confirm Password",
                 placeholder = "Confirm Password",
                 onValueChange = { viewModel.updateConfirmPassword(it) }

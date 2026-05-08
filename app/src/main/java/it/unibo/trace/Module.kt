@@ -31,7 +31,7 @@ val dataModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { MainViewModel(get(), get()) }
+    single { MainViewModel(get(), get()) }
     viewModel { HomeViewModel(get(), get()) }
     viewModel { AddTodoViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }

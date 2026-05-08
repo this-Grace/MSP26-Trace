@@ -2,6 +2,7 @@ package it.unibo.trace.data.supabase
 
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.FlowType
 import io.github.jan.supabase.postgrest.Postgrest
 import it.unibo.trace.BuildConfig
 
@@ -16,6 +17,6 @@ val supabase = createSupabaseClient(
     install(Postgrest)
     install(Auth) {
         scheme = "it.unibo.trace"
-        host = "login-callback"
+        flowType = FlowType.PKCE
     }
 }

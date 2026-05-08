@@ -18,7 +18,8 @@ data class ResetPasswordUiState(
     val password: String = "",
     val confirmPassword: String = "",
     val isPasswordVisible: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isSuccess: Boolean = false
 )
 
 /**
@@ -49,24 +50,16 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
             UiMessenger.show("Passwords do not match")
             return
         }
-        if (authService.getCurrentUser() == null) {
-            UiMessenger.show("Reset link expired or invalid. Please request a new one.")
-            return
-        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.updatePassword(state.password)
-                authService.signOut()
                 UiMessenger.show("Password updated successfully!", MessageDuration.LONG)
+                authService.signOut()
+                _uiState.update { it.copy(isSuccess = true) }
             } catch (e: Exception) {
-                val msg = if (e.message?.contains("sign out", ignoreCase = true) == true) {
-                    "Password updated, but sign out failed. Please open the app again."
-                } else {
-                    "Failed to update password. Try again."
-                }
-                UiMessenger.show(msg)
+                UiMessenger.show("Error: ${e.localizedMessage}")
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }

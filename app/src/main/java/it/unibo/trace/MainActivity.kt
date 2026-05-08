@@ -16,23 +16,16 @@ import androidx.fragment.app.FragmentActivity
 import org.koin.android.ext.android.inject
 import it.unibo.trace.ui.MainViewModel
 import it.unibo.trace.utils.UiMessenger
-import it.unibo.trace.data.supabase.supabase
-import io.github.jan.supabase.auth.handleDeeplinks
 
 /**
  * The main entry point of the application.
- *
- * This activity is responsible for:
- * - Handling Supabase authentication deep links.
- * - Initializing the Compose UI content.
- * - Managing the global application theme via [MainViewModel].
  */
 class MainActivity : FragmentActivity() {
     private val mainViewModel: MainViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supabase.handleDeeplinks(intent)
+        mainViewModel.handleAuthCallback(intent)
 
         enableEdgeToEdge()
         setContent {
@@ -54,6 +47,6 @@ class MainActivity : FragmentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        supabase.handleDeeplinks(intent)
+        mainViewModel.handleAuthCallback(intent)
     }
 }
