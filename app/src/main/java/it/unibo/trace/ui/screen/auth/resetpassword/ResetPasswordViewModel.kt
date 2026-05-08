@@ -2,9 +2,7 @@ package it.unibo.trace.ui.screen.auth.resetpassword
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import it.unibo.trace.data.supabase.service.AuthService
-import it.unibo.trace.ui.Route
 import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +18,8 @@ data class ResetPasswordUiState(
     val password: String = "",
     val confirmPassword: String = "",
     val isPasswordVisible: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isSuccess: Boolean = false
 )
 
 /**
@@ -41,7 +40,7 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
     /**
      * Updates the user's password in Supabase.
      */
-    fun updatePassword(navController: NavHostController) {
+    fun updatePassword() {
         val state = _uiState.value
         if (state.password.isBlank() || state.confirmPassword.isBlank()) {
             UiMessenger.show("Please fill all fields")
@@ -58,9 +57,7 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
                 authService.updatePassword(state.password)
                 UiMessenger.show("Password updated successfully!", MessageDuration.LONG)
                 authService.signOut()
-                navController.navigate(Route.Login) {
-                    popUpTo(0) { inclusive = true }
-                }
+                _uiState.update { it.copy(isSuccess = true) }
             } catch (e: Exception) {
                 UiMessenger.show("Error: ${e.localizedMessage}")
             } finally {
