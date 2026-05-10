@@ -115,7 +115,8 @@ fun HomeScreen(
                             TodoCard(
                                 item = item,
                                 isCompleted = isPending,
-                                onToggle = { viewModel.toggleTodo(item.id!!) }
+                                onToggle = { viewModel.toggleTodo(item.id!!) },
+                                onLongClick = { navController.navigate(Route.TodoDetail(item.id!!)) }
                             )
                         }
                     }

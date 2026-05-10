@@ -24,6 +24,7 @@ import it.unibo.trace.data.supabase.entities.TodoItem
  *
  * @param item The [TodoItem] to display.
  * @param onToggle Callback invoked when the user clicks on the card (to complete the task).
+ * @param onLongClick Optional callback for long press events.
  * @param isCompleted Whether the task is currently marked as completed (pending deletion).
  * @param modifier Optional [Modifier] for the card.
  */
@@ -32,11 +33,13 @@ fun TodoCard(
     item: TodoItem,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     isCompleted: Boolean = false
 ) {
     TraceCard(
         modifier = modifier.alpha(if (isCompleted) 0.5f else 1f),
-        onClick = onToggle
+        onClick = onToggle,
+        onLongClick = onLongClick
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

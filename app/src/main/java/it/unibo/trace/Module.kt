@@ -7,6 +7,7 @@ import it.unibo.trace.data.supabase.service.TodoService
 import it.unibo.trace.data.supabase.service.UserService
 import it.unibo.trace.data.supabase.supabase
 import it.unibo.trace.ui.screen.home.todo.AddTodoViewModel
+import it.unibo.trace.ui.screen.home.todo.TodoDetailViewModel
 import it.unibo.trace.ui.screen.home.HomeViewModel
 import it.unibo.trace.ui.MainViewModel
 import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordViewModel
@@ -34,6 +35,7 @@ val viewModelModule = module {
     single { MainViewModel(get(), get()) }
     viewModel { HomeViewModel(get(), get()) }
     viewModel { AddTodoViewModel(get(), get()) }
+    viewModel { TodoDetailViewModel(get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { SignInViewModel(get()) }
     viewModel { SignUpViewModel(get()) }

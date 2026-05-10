@@ -8,8 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.ui.screen.home.todo.AddTodoScreen
+import it.unibo.trace.ui.screen.home.todo.TodoDetailScreen
 import it.unibo.trace.ui.screen.home.HomeScreen
 import it.unibo.trace.ui.screen.home.profile.ProfileScreen
 import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordScreen
@@ -29,6 +31,7 @@ sealed interface Route {
     @Serializable data object Home : Route
     @Serializable data object Profile : Route
     @Serializable data object AddTodo : Route
+    @Serializable data class TodoDetail(val id: Long) : Route
 }
 
 @Composable
@@ -89,6 +92,12 @@ fun NavGraph(
         composable<Route.AddTodo> {
             ProtectedRoute(isAuthenticated, navController) {
                 AddTodoScreen(navController)
+            }
+        }
+        composable<Route.TodoDetail> { backStackEntry ->
+            ProtectedRoute(isAuthenticated, navController) {
+                val detail = backStackEntry.toRoute<Route.TodoDetail>()
+                TodoDetailScreen(navController, detail.id)
             }
         }
     }

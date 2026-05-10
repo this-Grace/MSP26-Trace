@@ -1,6 +1,5 @@
 package it.unibo.trace.ui.composable.card
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,6 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -23,13 +24,16 @@ import androidx.compose.ui.unit.dp
  * @param title Optional title to display above the card.
  * @param modifier Modifier for the outer container.
  * @param onClick Optional callback for click events on the card.
+ * @param onLongClick Optional callback for long press events on the card.
  * @param content The content to display inside the card.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TraceCard(
     modifier: Modifier = Modifier,
     title: String? = null,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -48,7 +52,12 @@ fun TraceCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
-                    if (onClick != null) Modifier.clickable { onClick() } else Modifier
+                    if (onClick != null || onLongClick != null) {
+                        Modifier.combinedClickable(
+                            onClick = { onClick?.invoke() },
+                            onLongClick = { onLongClick?.invoke() }
+                        )
+                    } else Modifier
                 ),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
@@ -56,6 +65,7 @@ fun TraceCard(
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
+
             Column(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
