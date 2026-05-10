@@ -11,7 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.ui.screen.home.todo.AddTodoScreen
-import it.unibo.trace.ui.screen.home.todo.TodoDetailScreen
+import it.unibo.trace.ui.screen.home.detail.TodoDetailScreen
 import it.unibo.trace.ui.screen.home.HomeScreen
 import it.unibo.trace.ui.screen.home.profile.ProfileScreen
 import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordScreen

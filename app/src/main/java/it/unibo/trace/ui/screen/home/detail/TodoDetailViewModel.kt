@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.home.todo
+package it.unibo.trace.ui.screen.home.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
