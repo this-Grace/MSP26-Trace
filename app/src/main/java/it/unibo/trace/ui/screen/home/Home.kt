@@ -17,18 +17,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -49,8 +42,6 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.fetchTodos()
@@ -58,7 +49,6 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TraceTopBar(
                 title = "My Tasks",
@@ -125,19 +115,7 @@ fun HomeScreen(
                             TodoCard(
                                 item = item,
                                 isCompleted = isPending,
-                                onToggle = {
-                                    viewModel.toggleTodo(item.id!!)
-                                    scope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = "Task completed!",
-                                            actionLabel = "Undo",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            viewModel.undoTodo(item.id!!)
-                                        }
-                                    }
-                                },
+                                onToggle = { viewModel.toggleTodo(item.id!!) },
                                 onLongClick = { navController.navigate(Route.TodoDetail(item.id!!)) }
                             )
                         }

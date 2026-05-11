@@ -2,8 +2,8 @@ package it.unibo.trace.ui.screen.auth.singup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.data.supabase.service.AuthService
-import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -59,7 +59,7 @@ class SignUpViewModel(private val authService: AuthService) : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.signUp(state.email, state.password)
-                UiMessenger.show("Account created! Please check your email.", MessageDuration.LONG)
+                UiMessenger.show("Account created! Please check your email.", SnackbarDuration.Long)
                 onSuccess()
             } catch (e: Exception) {
                 val msg = when {

@@ -6,7 +6,7 @@ import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.UserService
 import it.unibo.trace.ui.theme.AppTheme
-import it.unibo.trace.utils.MessageDuration
+import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -117,7 +117,7 @@ class ProfileViewModel(
             try {
                 userService.deleteAccount()
                 authService.signOut()
-                UiMessenger.show("Account deleted successfully!", MessageDuration.LONG)
+                UiMessenger.show("Account deleted successfully!", SnackbarDuration.Long)
             } catch (e: Exception) {
                 UiMessenger.show(e.localizedMessage ?: "Error deleting account")
             } finally {

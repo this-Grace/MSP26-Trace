@@ -3,7 +3,7 @@ package it.unibo.trace.ui.screen.auth.resetpassword
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
-import it.unibo.trace.utils.MessageDuration
+import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,7 +55,7 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.updatePassword(state.password)
-                UiMessenger.show("Password updated successfully!", MessageDuration.LONG)
+                UiMessenger.show("Password updated successfully!", SnackbarDuration.Long)
                 authService.signOut()
                 _uiState.update { it.copy(isSuccess = true) }
             } catch (e: Exception) {

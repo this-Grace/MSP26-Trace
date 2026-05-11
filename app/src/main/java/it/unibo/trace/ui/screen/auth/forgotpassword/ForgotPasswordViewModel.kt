@@ -3,7 +3,7 @@ package it.unibo.trace.ui.screen.auth.forgotpassword
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
-import it.unibo.trace.utils.MessageDuration
+import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +44,7 @@ class ForgotPasswordViewModel(private val authService: AuthService) : ViewModel(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.sendResetPasswordEmail(email)
-                UiMessenger.show("Instructions sent! Please check your inbox.", MessageDuration.LONG)
+                UiMessenger.show("Instructions sent! Please check your inbox.", SnackbarDuration.Long)
             } catch (e: Exception) {
                 val msg = if (e.message?.contains("network", ignoreCase = true) == true) {
                     "Network error, please check your connection"

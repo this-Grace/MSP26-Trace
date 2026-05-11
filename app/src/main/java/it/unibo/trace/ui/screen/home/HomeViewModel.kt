@@ -79,6 +79,12 @@ class HomeViewModel(
             deleteTodo(todoId)
         }
         deletionJobs[todoId] = job
+
+        UiMessenger.show(
+            text = "Task completed!",
+            actionLabel = "Undo",
+            onAction = { undoTodo(todoId) }
+        )
     }
 
     /**

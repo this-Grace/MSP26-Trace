@@ -1,15 +1,14 @@
 package it.unibo.trace.utils
 
-import android.widget.Toast
+import androidx.compose.material3.SnackbarDuration
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 /**
- * Centralized service to send UI messages (Toasts, Snackbars) from ViewModels.
+ * Centralized service to send UI messages (Snackbars) from ViewModels.
  *
  * This object uses a [MutableSharedFlow] to broadcast messages to the UI layer
- * without requiring a reference to the Android Context within the ViewModel,
- * ensuring a clean separation of concerns and improved testability.
+ * without requiring a reference to the Android Context within the ViewModel.
  */
 object UiMessenger {
     private val _messages = MutableSharedFlow<UserMessage>(extraBufferCapacity = 1)
@@ -23,10 +22,17 @@ object UiMessenger {
      * Emits a new message to be displayed to the user.
      *
      * @param text The string content of the message.
-     * @param duration The display duration (SHORT or LONG). Defaults to [MessageDuration.SHORT].
+     * @param duration The display duration. Defaults to [SnackbarDuration.Short].
+     * @param actionLabel Optional label for the snackbar action button.
+     * @param onAction Optional callback to be executed when the action button is clicked.
      */
-    fun show(text: String, duration: Int = MessageDuration.SHORT) {
-        _messages.tryEmit(UserMessage(text, duration))
+    fun show(
+        text: String,
+        duration: SnackbarDuration = SnackbarDuration.Short,
+        actionLabel: String? = null,
+        onAction: (() -> Unit)? = null
+    ) {
+        _messages.tryEmit(UserMessage(text, duration, actionLabel, onAction))
     }
 }
 
@@ -35,13 +41,12 @@ object UiMessenger {
  *
  * @property text The message content.
  * @property duration How long the message should be visible.
+ * @property actionLabel Optional label for an action button.
+ * @property onAction Optional callback for the action button.
  */
-data class UserMessage(val text: String, val duration: Int)
-
-/**
- * Defines the duration for which a UI message is displayed.
- */
-object MessageDuration {
-    const val SHORT = Toast.LENGTH_SHORT
-    const val LONG = Toast.LENGTH_LONG
-}
+data class UserMessage(
+    val text: String,
+    val duration: SnackbarDuration,
+    val actionLabel: String? = null,
+    val onAction: (() -> Unit)? = null
+)
