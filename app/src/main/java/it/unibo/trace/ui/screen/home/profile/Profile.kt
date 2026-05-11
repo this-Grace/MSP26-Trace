@@ -1,7 +1,8 @@
 package it.unibo.trace.ui.screen.home.profile
 
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
@@ -25,6 +28,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -67,6 +71,12 @@ fun ProfileScreen(
     val activity = context as? FragmentActivity
     val uiState by viewModel.uiState.collectAsState()
     val theme by viewModel.theme.collectAsState()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let { viewModel.uploadProfilePicture(it, context.contentResolver) }
+    }
 
     val authenticator = remember(activity) {
         activity?.let { BiometricAuthenticator(it) }
@@ -134,11 +144,30 @@ fun ProfileScreen(
                     .aspectRatio(2f)
             ) {
                 AsyncImage(
-                    model = "https://api.dicebear.com/9.x/avataaars/svg?seed=${uiState.email}",
+                    model = uiState.effectiveAvatarUrl,
                     contentDescription = stringResource(R.string.avatar_content_description),
                     imageLoader = svgImageLoader,
                     modifier = Modifier.fillMaxSize()
                 )
+
+                SmallFloatingActionButton(
+                    onClick = {
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddAPhoto,
+                        contentDescription = "Update profile photo",
+                    )
+                }
             }
 
             TraceCard(title = stringResource(R.string.account_info)) {
@@ -180,23 +209,7 @@ fun ProfileScreen(
                 ) {
                     TraceButton(
                         text = stringResource(R.string.delete),
-                        onClick = {
-                            val canAuth = authenticator?.canAuthenticate()
-                            if (canAuth == BiometricManager.BIOMETRIC_SUCCESS) {
-                                authenticator.authenticate(
-                                    title = context.getString(R.string.delete_account),
-                                    subtitle = context.getString(R.string.verify_identity),
-                                    onSuccess = { viewModel.deleteAccount() },
-                                    onError = { code, _ ->
-                                        if (code != BiometricPrompt.ERROR_USER_CANCELED) {
-                                            viewModel.setShowDeleteDialog(true)
-                                        }
-                                    }
-                                )
-                            } else {
-                                viewModel.setShowDeleteDialog(true)
-                            }
-                        },
+                        onClick = { viewModel.handleDeleteClick(authenticator, context) },
                         modifier = Modifier.weight(1f),
                         icon = {
                             Icon(Icons.Default.DeleteForever, contentDescription = null)

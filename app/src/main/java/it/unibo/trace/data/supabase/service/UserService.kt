@@ -1,8 +1,13 @@
 package it.unibo.trace.data.supabase.service
 
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.storage.storage
 import it.unibo.trace.data.supabase.entities.ProfileInfo
+import it.unibo.trace.utils.UiMessenger
+import it.unibo.trace.utils.toUserMessage
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.ZoneId
@@ -21,13 +26,52 @@ class UserService(private val authService: AuthService, private val supabase: Su
         supabase.postgrest.rpc("delete_user")
     }
 
+    suspend fun uploadAvatar(userId: String, bytes: ByteArray): String {
+        val bucket = supabase.storage.from("avatars")
+
+        val fileName = "$userId/avatar.png"
+
+        bucket.upload(fileName, bytes) {
+            upsert = true
+            contentType = io.ktor.http.ContentType.Image.PNG
+        }
+
+        return bucket.publicUrl(fileName)
+    }
+
+    suspend fun updateAvatarUrl(url: String) {
+        val userId = supabase.auth.currentUserOrNull()?.id ?: return
+        val data = mapOf(
+            "id" to userId,
+            "avatar_url" to url
+        )
+        supabase.from("Profiles").upsert(data)
+    }
+
     /**
      * Retrieves and maps the current user's profile information.
      */
     @OptIn(ExperimentalTime::class)
-    fun getProfileInfo(): ProfileInfo? {
+    suspend fun getProfileInfo(): ProfileInfo? {
         val user = authService.getCurrentUser() ?: return null
-        
+        val userId = user.id
+
+        val avatarFromDb = try {
+            val result = supabase.from("Profiles")
+                .select {
+                    filter { eq("id", userId) }
+                }
+
+            if (result.data != "[]" && result.data.isNotEmpty()) {
+                val profile = result.decodeSingleOrNull<Map<String, String>>()
+                profile?.get("avatar_url")
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+
         val lastLoginDate = user.lastSignInAt?.let {
             java.time.Instant.ofEpochMilli(it.toEpochMilliseconds())
                 .atZone(ZoneId.systemDefault())
@@ -36,6 +80,7 @@ class UserService(private val authService: AuthService, private val supabase: Su
 
         return ProfileInfo(
             email = user.email ?: "Not available",
+            avatarUrl = avatarFromDb,
             loginType = user.appMetadata?.get("provider")?.jsonPrimitive?.contentOrNull
                 ?.replaceFirstChar { it.uppercase() } ?: "Unknown",
             lastLogin = lastLoginDate
