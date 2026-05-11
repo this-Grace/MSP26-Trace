@@ -6,8 +6,10 @@ import it.unibo.trace.data.supabase.entities.TodoItem
 import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.TodoService
 import it.unibo.trace.utils.UiMessenger
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -114,6 +116,23 @@ class HomeViewModel(
             _uiState.update { it.copy(pendingDeletion = it.pendingDeletion - todoId) }
             deletionJobs.remove(todoId)
             UiMessenger.show("Error: ${e.localizedMessage}")
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Ensure pending deletions are executed even if the ViewModel is destroyed
+        val pendingIds = _uiState.value.pendingDeletion.toList()
+        if (pendingIds.isNotEmpty()) {
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                pendingIds.forEach { id ->
+                    try {
+                        todoService.deleteTodo(id)
+                    } catch (e: Exception) {
+                        // Silent failure on cleanup
+                    }
+                }
+            }
         }
     }
 }

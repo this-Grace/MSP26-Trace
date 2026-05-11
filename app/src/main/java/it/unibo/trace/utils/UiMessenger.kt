@@ -1,22 +1,23 @@
 package it.unibo.trace.utils
 
 import androidx.compose.material3.SnackbarDuration
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.receiveAsFlow
 
 /**
  * Centralized service to send UI messages (Snackbars) from ViewModels.
  *
- * This object uses a [MutableSharedFlow] to broadcast messages to the UI layer
+ * This object uses a [Channel] to broadcast messages to the UI layer
  * without requiring a reference to the Android Context within the ViewModel.
  */
 object UiMessenger {
-    private val _messages = MutableSharedFlow<UserMessage>(extraBufferCapacity = 1)
+    private val _messages = Channel<UserMessage>(Channel.BUFFERED)
 
     /**
      * A flow of [UserMessage] that should be collected by the UI (e.g., in MainActivity).
      */
-    val messages = _messages.asSharedFlow()
+    val messages: Flow<UserMessage> = _messages.receiveAsFlow()
 
     /**
      * Emits a new message to be displayed to the user.
@@ -32,7 +33,7 @@ object UiMessenger {
         actionLabel: String? = null,
         onAction: (() -> Unit)? = null
     ) {
-        _messages.tryEmit(UserMessage(text, duration, actionLabel, onAction))
+        _messages.trySend(UserMessage(text, duration, actionLabel, onAction))
     }
 }
 
