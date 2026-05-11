@@ -75,10 +75,21 @@ class HomeViewModel(
         _uiState.update { it.copy(pendingDeletion = it.pendingDeletion + todoId) }
 
         val job = viewModelScope.launch {
-            delay(2000)
+            delay(4000)
             deleteTodo(todoId)
         }
         deletionJobs[todoId] = job
+    }
+
+    /**
+     * Cancels a pending task completion.
+     *
+     * @param todoId The unique ID of the todo item to restore.
+     */
+    fun undoTodo(todoId: Long) {
+        deletionJobs[todoId]?.cancel()
+        deletionJobs.remove(todoId)
+        _uiState.update { it.copy(pendingDeletion = it.pendingDeletion - todoId) }
     }
 
     private suspend fun deleteTodo(todoId: Long) {
@@ -93,9 +104,9 @@ class HomeViewModel(
                 )
             }
             deletionJobs.remove(todoId)
-            UiMessenger.show("Task completed!")
         } catch (e: Exception) {
             _uiState.update { it.copy(pendingDeletion = it.pendingDeletion - todoId) }
+            deletionJobs.remove(todoId)
             UiMessenger.show("Error: ${e.localizedMessage}")
         }
     }
