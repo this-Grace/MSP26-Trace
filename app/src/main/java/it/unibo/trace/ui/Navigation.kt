@@ -17,7 +17,7 @@ import it.unibo.trace.ui.screen.home.profile.ProfileScreen
 import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.signin.SignInScreen
 import it.unibo.trace.ui.screen.auth.magiclink.MagicLinkSignInScreen
-import it.unibo.trace.ui.screen.auth.singup.SignUpScreen
+import it.unibo.trace.ui.screen.auth.signup.SignUpScreen
 import it.unibo.trace.ui.screen.auth.resetpassword.ResetPasswordScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel

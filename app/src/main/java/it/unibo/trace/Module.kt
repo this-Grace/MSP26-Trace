@@ -12,7 +12,7 @@ import it.unibo.trace.ui.screen.home.HomeViewModel
 import it.unibo.trace.ui.MainViewModel
 import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordViewModel
 import it.unibo.trace.ui.screen.auth.signin.SignInViewModel
-import it.unibo.trace.ui.screen.auth.singup.SignUpViewModel
+import it.unibo.trace.ui.screen.auth.signup.SignUpViewModel
 import it.unibo.trace.ui.screen.auth.resetpassword.ResetPasswordViewModel
 import it.unibo.trace.ui.screen.auth.magiclink.MagicLinkViewModel
 import it.unibo.trace.ui.screen.home.profile.ProfileViewModel

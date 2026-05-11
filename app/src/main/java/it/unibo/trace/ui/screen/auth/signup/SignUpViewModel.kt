@@ -1,4 +1,4 @@
-package it.unibo.trace.ui.screen.auth.singup
+package it.unibo.trace.ui.screen.auth.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
