@@ -8,6 +8,7 @@ import it.unibo.trace.data.supabase.service.UserService
 import it.unibo.trace.ui.theme.AppTheme
 import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.utils.UiMessenger
+import it.unibo.trace.utils.toUserMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -98,7 +99,7 @@ class ProfileViewModel(
                 authService.signOut()
                 UiMessenger.show("Logout done successfully!")
             } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "Failed to logout")
+                UiMessenger.show(e.toUserMessage())
             }
         }
     }
@@ -119,7 +120,7 @@ class ProfileViewModel(
                 authService.signOut()
                 UiMessenger.show("Account deleted successfully!", SnackbarDuration.Long)
             } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "Error deleting account")
+                UiMessenger.show(e.toUserMessage())
             } finally {
                 _uiState.update { it.copy(isDeleting = false, showDeleteDialog = false) }
             }

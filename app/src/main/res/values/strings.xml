@@ -3,4 +3,29 @@
     <style name="Theme.MyApplication" parent="android:Theme.Material.Light.NoActionBar" >
         <item name="android:fontFamily">@font/space_grotesk</item>
     </style>
+
+    <!-- Home Screen -->
+    <string name="home_title">My Tasks</string>
+    <string name="profile_content_description">Profile</string>
+    <string name="add_task_content_description">Add Task</string>
+    <string name="no_tasks_yet">No tasks yet!</string>
+    <string name="no_tasks_subtitle">Tap the + button to stay organized</string>
+    <string name="task_completed">Task completed!</string>
+    <string name="undo">Undo</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="logout">Logout</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_confirm">This action is irreversible. Please type your email to confirm:</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="account_info">Account Information</string>
+    <string name="email_label">Email</string>
+    <string name="login_method_label">Login Method</string>
+    <string name="appearance">Appearance</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="last_login">Last login: %1$s</string>
+    <string name="verify_identity">Verify your identity to proceed</string>
+    <string name="avatar_content_description">Avatar</string>
 </resources>

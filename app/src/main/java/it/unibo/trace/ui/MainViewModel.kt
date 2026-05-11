@@ -10,6 +10,7 @@ import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.ui.theme.AppTheme
 import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.utils.UiMessenger
+import it.unibo.trace.utils.toUserMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -63,7 +64,7 @@ class MainViewModel(
                     }
                 }
             } catch (e: Exception) {
-                UiMessenger.show("Error: ${e.localizedMessage}", SnackbarDuration.Long)
+                UiMessenger.show(e.toUserMessage(), SnackbarDuration.Long)
             }
         }
     }

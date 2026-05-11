@@ -6,6 +6,7 @@ import it.unibo.trace.data.supabase.entities.TodoItem
 import it.unibo.trace.data.supabase.service.AuthService
 import it.unibo.trace.data.supabase.service.TodoService
 import it.unibo.trace.utils.UiMessenger
+import it.unibo.trace.utils.toUserMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -58,12 +59,11 @@ class HomeViewModel(
                     todoService.getTodos(user.id)
                 }
                 _uiState.update { it.copy(items = list, errorMessage = null) }
-            } catch (e: Exception) {
-                UiMessenger.show("Failed to fetch tasks: ${e.localizedMessage}")
-            } finally {
+                } catch (e: Exception) {
+                UiMessenger.show(e.toUserMessage())
+                } finally {
                 _uiState.update { it.copy(isLoading = false) }
-            }
-        }
+                }        }
     }
 
     /**
@@ -115,7 +115,7 @@ class HomeViewModel(
         } catch (e: Exception) {
             _uiState.update { it.copy(pendingDeletion = it.pendingDeletion - todoId) }
             deletionJobs.remove(todoId)
-            UiMessenger.show("Error: ${e.localizedMessage}")
+            UiMessenger.show(e.toUserMessage())
         }
     }
 

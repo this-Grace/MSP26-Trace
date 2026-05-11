@@ -40,6 +40,8 @@ import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import it.unibo.trace.ui.composable.TraceInfoItem
 import it.unibo.trace.ui.composable.ThemeSelector
 import it.unibo.trace.ui.composable.card.TraceCard
@@ -81,10 +83,10 @@ fun ProfileScreen(
     if (uiState.showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.setShowDeleteDialog(false) },
-            title = { Text("Delete Account") },
+            title = { Text(stringResource(R.string.delete_account)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("This action is irreversible. Please type your email to confirm:")
+                    Text(stringResource(R.string.delete_account_confirm))
                     EmailField(
                         value = uiState.deleteConfirmEmail,
                         onValueChange = { viewModel.updateDeleteConfirmEmail(it) }
@@ -96,12 +98,12 @@ fun ProfileScreen(
                     onClick = { viewModel.deleteAccount() },
                     enabled = !uiState.isDeleting
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.setShowDeleteDialog(false) }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -111,7 +113,7 @@ fun ProfileScreen(
         modifier = modifier,
         topBar = {
             TraceTopBar(
-                title = "Profile",
+                title = stringResource(R.string.profile_title),
                 onNavigateBack = { navController.popBackStack() }
             )
         }
@@ -133,15 +135,15 @@ fun ProfileScreen(
             ) {
                 AsyncImage(
                     model = "https://api.dicebear.com/9.x/avataaars/svg?seed=${uiState.email}",
-                    contentDescription = "Avatar",
+                    contentDescription = stringResource(R.string.avatar_content_description),
                     imageLoader = svgImageLoader,
                     modifier = Modifier.fillMaxSize()
                 )
             }
 
-            TraceCard(title = "Account Information") {
+            TraceCard(title = stringResource(R.string.account_info)) {
                 TraceInfoItem(
-                    label = "Email",
+                    label = stringResource(R.string.email_label),
                     value = uiState.email,
                     icon = Icons.Default.Email
                 )
@@ -150,13 +152,13 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
                 )
                 TraceInfoItem(
-                    label = "Login Method",
+                    label = stringResource(R.string.login_method_label),
                     value = uiState.loginType,
                     icon = Icons.Default.Badge
                 )
             }
 
-            TraceCard(title = "Appearance") {
+            TraceCard(title = stringResource(R.string.appearance)) {
                 ThemeSelector(
                     selectedTheme = theme,
                     onThemeSelected = { viewModel.setTheme(it) }
@@ -177,13 +179,13 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     TraceButton(
-                        text = "Delete",
+                        text = stringResource(R.string.delete),
                         onClick = {
                             val canAuth = authenticator?.canAuthenticate()
                             if (canAuth == BiometricManager.BIOMETRIC_SUCCESS) {
                                 authenticator.authenticate(
-                                    title = "Delete Account",
-                                    subtitle = "Verify your identity to proceed",
+                                    title = context.getString(R.string.delete_account),
+                                    subtitle = context.getString(R.string.verify_identity),
                                     onSuccess = { viewModel.deleteAccount() },
                                     onError = { code, _ ->
                                         if (code != BiometricPrompt.ERROR_USER_CANCELED) {
@@ -202,7 +204,7 @@ fun ProfileScreen(
                     )
 
                     TraceButton(
-                        text = "Sign Out",
+                        text = stringResource(R.string.sign_out),
                         onClick = { viewModel.signOut() },
                         modifier = Modifier.weight(1f),
                         outlined = true,
@@ -213,7 +215,7 @@ fun ProfileScreen(
                 }
 
                 Text(
-                    text = "Last login: ${uiState.formattedLastLogin}",
+                    text = stringResource(R.string.last_login, uiState.formattedLastLogin),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
