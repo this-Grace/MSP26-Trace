@@ -28,4 +28,7 @@
     <string name="last_login">Last login: %1$s</string>
     <string name="verify_identity">Verify your identity to proceed</string>
     <string name="avatar_content_description">Avatar</string>
+    <string name="take_photo">Take photo</string>
+    <string name="choose_gallery">Choose from gallery</string>
+    <string name="remove_photo">Delete photo</string>
 </resources>

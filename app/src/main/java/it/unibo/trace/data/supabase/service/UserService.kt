@@ -26,6 +26,12 @@ class UserService(private val authService: AuthService, private val supabase: Su
         supabase.postgrest.rpc("delete_user")
     }
 
+    /**
+     * Uploads the user's avatar image to Supabase storage.
+     * @param userId The ID of the user.
+     * @param bytes The image data in bytes.
+     * @return The public URL of the uploaded avatar.
+     */
     suspend fun uploadAvatar(userId: String, bytes: ByteArray): String {
         val bucket = supabase.storage.from("avatars")
 
@@ -39,6 +45,10 @@ class UserService(private val authService: AuthService, private val supabase: Su
         return bucket.publicUrl(fileName)
     }
 
+    /**
+     * Updates the avatar URL in the user's profile database record.
+     * @param url The new avatar URL to store.
+     */
     suspend fun updateAvatarUrl(url: String) {
         val userId = supabase.auth.currentUserOrNull()?.id ?: return
         val data = mapOf(
@@ -46,6 +56,20 @@ class UserService(private val authService: AuthService, private val supabase: Su
             "avatar_url" to url
         )
         supabase.from("Profiles").upsert(data)
+    }
+
+    /**
+     * Deletes the user's avatar image from storage and clears the URL in the database.
+     * @param userId The ID of the user.
+     */
+    suspend fun deleteAvatar(userId: String) {
+        val path = "$userId/avatar.png"
+        supabase.storage.from("avatars").delete(path)
+        supabase.from("Profiles").update(
+            mapOf("avatar_url" to null)
+        ) {
+            filter { eq("id", userId) }
+        }
     }
 
     /**
@@ -69,6 +93,7 @@ class UserService(private val authService: AuthService, private val supabase: Su
                 null
             }
         } catch (e: Exception) {
+            UiMessenger.show(e.toUserMessage())
             null
         }
 

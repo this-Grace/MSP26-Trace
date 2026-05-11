@@ -3,6 +3,7 @@ package it.unibo.trace.ui.screen.home.profile
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,12 +22,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
@@ -37,30 +44,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
-import androidx.compose.ui.res.stringResource
 import it.unibo.trace.R
-import it.unibo.trace.ui.composable.TraceInfoItem
 import it.unibo.trace.ui.composable.ThemeSelector
-import it.unibo.trace.ui.composable.card.TraceCard
+import it.unibo.trace.ui.composable.TraceInfoItem
 import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.composable.button.TraceButton
+import it.unibo.trace.ui.composable.card.TraceCard
 import it.unibo.trace.ui.composable.input.EmailField
 import it.unibo.trace.utils.BiometricAuthenticator
 import org.koin.androidx.compose.koinViewModel
 
-/**
- * Screen displaying the user's profile information and theme settings.
- *
- * @param navController Controller for navigating between screens.
- * @param viewModel ViewModel providing the screen's state and actions.
- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
@@ -72,11 +75,18 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val theme by viewModel.theme.collectAsState()
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let { viewModel.uploadProfilePicture(it, context.contentResolver) }
-    }
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+            uri -> uri?.let { viewModel.uploadProfilePicture(it, context.contentResolver) }
+        }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            success -> if (success) viewModel.onCameraResult(context.contentResolver)
+        }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+            isGranted -> if (isGranted) viewModel.startCamera(context, cameraLauncher)
+        }
 
     val authenticator = remember(activity) {
         activity?.let { BiometricAuthenticator(it) }
@@ -91,30 +101,31 @@ fun ProfileScreen(
     }
 
     if (uiState.showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.setShowDeleteDialog(false) },
-            title = { Text(stringResource(R.string.delete_account)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.delete_account_confirm))
-                    EmailField(
-                        value = uiState.deleteConfirmEmail,
-                        onValueChange = { viewModel.updateDeleteConfirmEmail(it) }
-                    )
-                }
+        DeleteAccountDialog(
+            emailInput = uiState.deleteConfirmEmail,
+            isDeleting = uiState.isDeleting,
+            onEmailChange = viewModel::updateDeleteConfirmEmail,
+            onConfirm = viewModel::deleteAccount,
+            onDismiss = { viewModel.setShowDeleteDialog(false) }
+        )
+    }
+
+    if (uiState.showImagePicker) {
+        ImageSourcePickerSheet(
+            onDismiss = { viewModel.setShowImagePicker(false) },
+            onTakePhoto = {
+                viewModel.setShowImagePicker(false)
+                viewModel.handleCameraAction(context, permissionLauncher, cameraLauncher)
             },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.deleteAccount() },
-                    enabled = !uiState.isDeleting
-                ) {
-                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
-                }
+            onChooseGallery = {
+                viewModel.setShowImagePicker(false)
+                galleryLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             },
-            dismissButton = {
-                TextButton(onClick = { viewModel.setShowDeleteDialog(false) }) {
-                    Text(stringResource(R.string.cancel))
-                }
+            onRemovePhoto = {
+                viewModel.setShowImagePicker(false)
+                viewModel.removeProfilePicture()
             }
         )
     }
@@ -138,37 +149,11 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(2f)
-            ) {
-                AsyncImage(
-                    model = uiState.effectiveAvatarUrl,
-                    contentDescription = stringResource(R.string.avatar_content_description),
-                    imageLoader = svgImageLoader,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                SmallFloatingActionButton(
-                    onClick = {
-                        launcher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    },
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AddAPhoto,
-                        contentDescription = "Update profile photo",
-                    )
-                }
-            }
+            ProfileAvatar(
+                url = uiState.effectiveAvatarUrl,
+                imageLoader = svgImageLoader,
+                onEditClick = { viewModel.setShowImagePicker(true) }
+            )
 
             TraceCard(title = stringResource(R.string.account_info)) {
                 TraceInfoItem(
@@ -212,7 +197,7 @@ fun ProfileScreen(
                         onClick = { viewModel.handleDeleteClick(authenticator, context) },
                         modifier = Modifier.weight(1f),
                         icon = {
-                            Icon(Icons.Default.DeleteForever, contentDescription = null)
+                            Icon(Icons.Default.DeleteForever, contentDescription = "Delete")
                         }
                     )
 
@@ -222,7 +207,7 @@ fun ProfileScreen(
                         modifier = Modifier.weight(1f),
                         outlined = true,
                         icon = {
-                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
                         }
                     )
                 }
@@ -236,4 +221,116 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
+}
+
+@Composable
+fun ProfileAvatar(
+    url: String,
+    imageLoader: ImageLoader,
+    onEditClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(2f)
+    ) {
+        AsyncImage(
+            model = url,
+            contentDescription = null,
+            imageLoader = imageLoader,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Fit
+        )
+        SmallFloatingActionButton(
+            onClick = onEditClick,
+            shape = CircleShape,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp)
+        ) {
+            Icon(Icons.Default.AddAPhoto, contentDescription = "Update photo")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ImageSourcePickerSheet(
+    onDismiss: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onChooseGallery: () -> Unit,
+    onRemovePhoto: () -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
+        ) {
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.take_photo)) },
+                leadingContent = { Icon(Icons.Default.PhotoCamera, "photo") },
+                modifier = Modifier.clickable { onTakePhoto() }
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.choose_gallery)) },
+                leadingContent = { Icon(Icons.Default.PhotoLibrary, "gallery") },
+                modifier = Modifier.clickable { onChooseGallery() }
+            )
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(R.string.remove_photo),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "delete",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                },
+                modifier = Modifier.clickable { onRemovePhoto() }
+            )
+        }
+    }
+}
+
+@Composable
+fun DeleteAccountDialog(
+    emailInput: String,
+    isDeleting: Boolean,
+    onEmailChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_account)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.delete_account_confirm))
+                EmailField(
+                    value = emailInput,
+                    onValueChange = onEmailChange
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = !isDeleting
+            ) {
+                Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
