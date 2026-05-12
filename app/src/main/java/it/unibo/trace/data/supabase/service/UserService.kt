@@ -35,11 +35,11 @@ class UserService(private val authService: AuthService, private val supabase: Su
     suspend fun uploadAvatar(userId: String, bytes: ByteArray): String {
         val bucket = supabase.storage.from("avatars")
 
-        val fileName = "$userId/avatar.png"
+        val fileName = "$userId/avatar.jpg"
 
         bucket.upload(fileName, bytes) {
             upsert = true
-            contentType = io.ktor.http.ContentType.Image.PNG
+            contentType = io.ktor.http.ContentType.Image.JPEG
         }
 
         return bucket.publicUrl(fileName)
@@ -63,8 +63,13 @@ class UserService(private val authService: AuthService, private val supabase: Su
      * @param userId The ID of the user.
      */
     suspend fun deleteAvatar(userId: String) {
-        val path = "$userId/avatar.png"
-        supabase.storage.from("avatars").delete(path)
+        val paths = listOf("$userId/avatar.png", "$userId/avatar.jpg")
+        try {
+            supabase.storage.from("avatars").delete(paths)
+        } catch (e: Exception) {
+            // Ignore if files don't exist
+        }
+
         supabase.from("Profiles").update(
             mapOf("avatar_url" to null)
         ) {

@@ -169,8 +169,30 @@ class ProfileViewModel(
                 val originalBitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream.close()
 
+                if (originalBitmap == null) {
+                    UiMessenger.show("Could not decode image")
+                    return@launch
+                }
+
+                // Scale down if necessary
+                val maxDimension = 800
+                val width = originalBitmap.width
+                val height = originalBitmap.height
+                val scaledBitmap = if (width > maxDimension || height > maxDimension) {
+                    val scale = maxDimension.toFloat() / maxOf(width, height)
+                    Bitmap.createScaledBitmap(
+                        originalBitmap,
+                        (width * scale).toInt(),
+                        (height * scale).toInt(),
+                        true
+                    )
+                } else {
+                    originalBitmap
+                }
+
                 val outputStream = ByteArrayOutputStream()
-                originalBitmap.compress(Bitmap.CompressFormat.PNG, 70, outputStream)
+                // Use JPEG and 70 quality for compression to keep file size small
+                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
                 val bytes = outputStream.toByteArray()
 
                 val imageUrl = userService.uploadAvatar(userId, bytes)
@@ -179,6 +201,12 @@ class ProfileViewModel(
 
                 _uiState.update { it.copy(avatarUrl = timestampedUrl) }
                 UiMessenger.show("Photo updated successfully!")
+
+                // Clean up bitmaps
+                if (scaledBitmap != originalBitmap) {
+                    scaledBitmap.recycle()
+                }
+                originalBitmap.recycle()
             } catch (e: Exception) {
                 UiMessenger.show(e.toUserMessage())
             }
@@ -207,7 +235,7 @@ class ProfileViewModel(
      * Creates a temporary file URI for camera capture.
      */
     fun getTmpUri(context: Context): Uri {
-        val tmpFile = File.createTempFile("avatar_", ".png", context.cacheDir).apply {
+        val tmpFile = File.createTempFile("avatar_", ".jpg", context.cacheDir).apply {
             createNewFile()
             deleteOnExit()
         }

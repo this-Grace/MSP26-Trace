@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
@@ -263,37 +266,93 @@ fun ImageSourcePickerSheet(
     onChooseGallery: () -> Unit,
     onRemovePhoto: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = 40.dp, top = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.take_photo)) },
-                leadingContent = { Icon(Icons.Default.PhotoCamera, "photo") },
-                modifier = Modifier.clickable { onTakePhoto() }
+            Text(
+                text = stringResource(R.string.profile_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.choose_gallery)) },
-                leadingContent = { Icon(Icons.Default.PhotoLibrary, "gallery") },
-                modifier = Modifier.clickable { onChooseGallery() }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                SourceCard(
+                    label = stringResource(R.string.take_photo),
+                    icon = Icons.Default.PhotoCamera,
+                    onClick = onTakePhoto,
+                    modifier = Modifier.weight(1f)
+                )
+                SourceCard(
+                    label = stringResource(R.string.choose_gallery),
+                    icon = Icons.Default.PhotoLibrary,
+                    onClick = onChooseGallery,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            TextButton(
+                onClick = onRemovePhoto,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text = stringResource(R.string.remove_photo),
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SourceCard(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.aspectRatio(1f),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.padding(bottom = 8.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
-            ListItem(
-                headlineContent = {
-                    Text(
-                        text = stringResource(R.string.remove_photo),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                },
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "delete",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                },
-                modifier = Modifier.clickable { onRemovePhoto() }
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium
             )
         }
     }
