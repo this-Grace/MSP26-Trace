@@ -12,6 +12,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.R
@@ -77,6 +78,7 @@ data class ProfileUiState(
  * ViewModel for managing user profile data and application theme settings.
  */
 class ProfileViewModel(
+    private val savedStateHandle: SavedStateHandle,
     private val themeRepository: ThemeRepository,
     private val authService: AuthService,
     private val userService: UserService
@@ -85,7 +87,9 @@ class ProfileViewModel(
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    private var tempUri: Uri? = null
+    private var tempUri: Uri?
+        get() = savedStateHandle.get<String>("temp_uri")?.let { Uri.parse(it) }
+        set(value) { savedStateHandle["temp_uri"] = value?.toString() }
 
     val theme: StateFlow<AppTheme> = themeRepository.themeFlow
         .stateIn(
@@ -169,9 +173,9 @@ class ProfileViewModel(
         viewModelScope.launch {
             try {
                 val userId = authService.getCurrentUser()?.id ?: return@launch
-                val inputStream = contentResolver.openInputStream(uri) ?: return@launch
-                val originalBitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream.close()
+                val originalBitmap = contentResolver.openInputStream(uri)?.use { inputStream ->
+                    BitmapFactory.decodeStream(inputStream)
+                }
 
                 if (originalBitmap == null) {
                     UiMessenger.show(R.string.error_decode_image)
@@ -189,10 +193,11 @@ class ProfileViewModel(
                     originalBitmap
                 }
 
-                val outputStream = ByteArrayOutputStream()
-                // Use JPEG and 70 quality for compression to keep file size small
-                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-                val bytes = outputStream.toByteArray()
+                val bytes = ByteArrayOutputStream().use { outputStream ->
+                    // Use JPEG and 70 quality for compression to keep file size small
+                    scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                    outputStream.toByteArray()
+                }
 
                 val imageUrl = userService.uploadAvatar(userId, bytes)
                 userService.updateAvatarUrl(imageUrl)
