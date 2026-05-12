@@ -25,7 +25,7 @@ fun ProfileAvatar(
     onEditClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier.size(120.dp)
+        modifier = Modifier.size(240.dp)
     ) {
         AsyncImage(
             model = url,

@@ -23,7 +23,9 @@ fun TraceTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    isError: Boolean = false
+    isError: Boolean = false,
+    singleLine: Boolean = true,
+    minLines: Int = 1
 ) {
     OutlinedTextField(
         value = value,
@@ -36,7 +38,8 @@ fun TraceTextField(
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,
         isError = isError,
-        singleLine = true,
+        singleLine = singleLine,
+        minLines = minLines,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
