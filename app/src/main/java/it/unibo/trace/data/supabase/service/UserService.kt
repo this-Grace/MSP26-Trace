@@ -86,19 +86,22 @@ class UserService(private val authService: AuthService, private val supabase: Su
         val userId = user.id
 
         val avatarFromDb = try {
-            val result = supabase.from("Profiles")
+            val response = supabase.from("Profiles")
                 .select {
                     filter { eq("id", userId) }
                 }
-
-            if (result.data != "[]" && result.data.isNotEmpty()) {
-                val profile = result.decodeSingleOrNull<Map<String, String>>()
-                profile?.get("avatar_url")
+            
+            // If the record exists, try to get the avatar_url
+            // Using a safer way to access the JSON directly if it's a simple map
+            if (response.data != "[]") {
+                val json = response.decodeSingleOrNull<kotlinx.serialization.json.JsonObject>()
+                json?.get("avatar_url")?.jsonPrimitive?.contentOrNull
             } else {
                 null
             }
         } catch (e: Exception) {
-            UiMessenger.show(e.toUserMessage())
+            // We don't show an error here because it might just be that the 
+            // Profiles table/record doesn't exist yet for a new user
             null
         }
 

@@ -103,15 +103,19 @@ class ProfileViewModel(
      */
     private fun loadUserProfile() {
         viewModelScope.launch {
-            userService.getProfileInfo()?.let { profile ->
-                _uiState.update {
-                    it.copy(
-                        email = profile.email,
-                        avatarUrl = profile.avatarUrl,
-                        loginType = profile.loginType,
-                        lastLogin = profile.lastLogin
-                    )
+            try {
+                userService.getProfileInfo()?.let { profile ->
+                    _uiState.update {
+                        it.copy(
+                            email = profile.email,
+                            avatarUrl = profile.avatarUrl,
+                            loginType = profile.loginType,
+                            lastLogin = profile.lastLogin
+                        )
+                    }
                 }
+            } catch (e: Exception) {
+                // Silently fail or log, as getProfileInfo handles its own logical errors
             }
         }
     }
