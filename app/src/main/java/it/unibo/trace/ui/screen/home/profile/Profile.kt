@@ -19,9 +19,13 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.rounded.Brightness4
+import androidx.compose.material.icons.rounded.BrightnessAuto
+import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,7 +43,6 @@ import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import it.unibo.trace.R
-import it.unibo.trace.ui.composable.ThemeSelector
 import it.unibo.trace.ui.composable.TraceInfoItem
 import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.composable.button.TraceButton
@@ -47,6 +50,7 @@ import it.unibo.trace.ui.composable.card.TraceCard
 import it.unibo.trace.ui.composable.dialog.DeleteAccountDialog
 import it.unibo.trace.ui.composable.image.ProfileAvatar
 import it.unibo.trace.ui.composable.sheet.ImageSourcePickerSheet
+import it.unibo.trace.ui.theme.AppTheme
 import it.unibo.trace.utils.BiometricAuthenticator
 import org.koin.androidx.compose.koinViewModel
 
@@ -122,7 +126,24 @@ fun ProfileScreen(
         topBar = {
             TraceTopBar(
                 title = stringResource(R.string.profile_title),
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                actions = {
+                    val icon = when (theme) {
+                        AppTheme.LIGHT -> Icons.Rounded.LightMode
+                        AppTheme.DARK -> Icons.Rounded.Brightness4
+                        AppTheme.SYSTEM -> Icons.Rounded.BrightnessAuto
+                    }
+                    IconButton(onClick = {
+                        val nextTheme = when (theme) {
+                            AppTheme.SYSTEM -> AppTheme.LIGHT
+                            AppTheme.LIGHT -> AppTheme.DARK
+                            AppTheme.DARK -> AppTheme.SYSTEM
+                        }
+                        viewModel.setTheme(nextTheme)
+                    }) {
+                        Icon(imageVector = icon, contentDescription = "Toggle theme")
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -156,13 +177,6 @@ fun ProfileScreen(
                     label = stringResource(R.string.login_method_label),
                     value = uiState.loginType,
                     icon = Icons.Default.Badge
-                )
-            }
-
-            TraceCard(title = stringResource(R.string.appearance)) {
-                ThemeSelector(
-                    selectedTheme = theme,
-                    onThemeSelected = { viewModel.setTheme(it) }
                 )
             }
 
