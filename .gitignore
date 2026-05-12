@@ -8,6 +8,7 @@
 
 # Ignore local machine-specific configuration
 local.properties
+.kotlin/
 .env/
 
 # Ignore Android/Gradle build artifacts
@@ -16,4 +17,4 @@ build/
 release/
 captures/
 .externalNativeBuild/
-.cxx/
+.cxx/.kotlin/
