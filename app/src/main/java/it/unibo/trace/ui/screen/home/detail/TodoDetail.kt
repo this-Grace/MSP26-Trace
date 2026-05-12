@@ -144,14 +144,6 @@ fun TodoDetailScreen(
                         }
                     }
                 }
-                uiState.errorMessage != null -> {
-                    Text(
-                        text = uiState.errorMessage!!,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
             }
         }
     }
