@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
  */
 data class AddTodoUiState(
     val todoName: String = "",
+    val todoDescription: String = "",
     val isSaving: Boolean = false,
     val errorMessage: String? = null
 )
@@ -37,11 +38,17 @@ class AddTodoViewModel(
         _uiState.update { it.copy(todoName = name, errorMessage = null) }
     }
 
+    fun updateTodoDescription(description: String) {
+        _uiState.update { it.copy(todoDescription = description) }
+    }
+
     /**
      * Saves a new Todo item to the database.
      */
     fun saveTodo(onSuccess: () -> Unit) {
         val name = _uiState.value.todoName.trim()
+        val description = _uiState.value.todoDescription.trim().ifBlank { null }
+        
         if (name.isBlank()) {
             _uiState.update { it.copy(errorMessage = "Name cannot be empty") }
             return
@@ -57,7 +64,11 @@ class AddTodoViewModel(
                     return@launch
                 }
 
-                val newTodo = TodoItem(name = name, uid = user.id)
+                val newTodo = TodoItem(
+                    name = name,
+                    description = description,
+                    uid = user.id
+                )
 
                 withContext(Dispatchers.IO) {
                     todoService.insertTodo(newTodo)

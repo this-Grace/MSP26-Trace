@@ -58,6 +58,14 @@ fun AddTodoScreen(
                 placeholder = "e.g. Buy milk"
             )
 
+            TraceTextField(
+                label = "Description (Optional)",
+                value = uiState.todoDescription,
+                onValueChange = { viewModel.updateTodoDescription(it) },
+                placeholder = "Add more details here...",
+                modifier = Modifier.weight(1f, fill = false)
+            )
+
             if (uiState.errorMessage != null) {
                 Text(
                     text = uiState.errorMessage!!,
