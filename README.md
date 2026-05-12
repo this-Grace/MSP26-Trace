@@ -22,10 +22,33 @@ create table public."Todos" (
   created_at timestamp with time zone not null default now(),
   name text null default '""'::text,
   uid uuid not null,
+  description text null,
   constraint todos_pkey primary key (id),
   constraint Todos_uid_fkey foreign KEY (uid) references auth.users (id) on delete CASCADE
 ) TABLESPACE pg_default;
+
+create table public."Profiles" (
+  id uuid not null,
+  avatar_url text null,
+  constraint profiles_pkey primary key (id),
+  constraint Profiles_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE
+) TABLESPACE pg_default;
 ```
+
+### ⚠️ Important: Row Level Security (RLS) & Policies
+
+Before using the app, you **must** configure access permissions in the Supabase Dashboard:
+
+1. **Enable RLS**: Go to **Database > Tables** or **Authentication > Policies** and enable RLS for both `Todos` and `Profiles` tables.
+2. **Todos Policies**:
+    * **Target**: `Authenticated` users.
+    * **Condition**: `auth.uid() = uid` for `SELECT`, `INSERT`, `UPDATE`, and `DELETE`.
+3. **Profiles Policies**:
+    * **Target**: `Authenticated` users.
+    * **Condition**: `auth.uid() = id` for `SELECT` and `UPDATE`.
+4. **Storage**:
+    * Create a **public** bucket named `avatars`.
+    * Add a policy to allow `Authenticated` users to `UPLOAD` and `UPDATE` files where the path matches their user ID.
 
 ### 3. GitHub Authentication
 
