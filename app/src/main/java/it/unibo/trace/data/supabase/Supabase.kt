@@ -4,10 +4,11 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.FlowType
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
 import it.unibo.trace.BuildConfig
 
 /**
- * Global Supabase client instance configured with Auth and Postgrest plugins.
+ * Global Supabase client instance configured with Auth, Postgrest and Storage plugins.
  * Uses credentials provided in BuildConfig (SUPABASE_URL and SUPABASE_KEY).
  */
 val supabase = createSupabaseClient(
@@ -19,4 +20,5 @@ val supabase = createSupabaseClient(
         scheme = "it.unibo.trace"
         flowType = FlowType.PKCE
     }
+    install(Storage)
 }

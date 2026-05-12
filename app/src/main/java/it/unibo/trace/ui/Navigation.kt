@@ -8,14 +8,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import io.github.jan.supabase.auth.status.SessionStatus
-import it.unibo.trace.ui.screen.home.todo.AddTodoScreen
+import it.unibo.trace.ui.screen.home.task.add.AddTodoScreen
+import it.unibo.trace.ui.screen.home.task.detail.TodoDetailScreen
 import it.unibo.trace.ui.screen.home.HomeScreen
 import it.unibo.trace.ui.screen.home.profile.ProfileScreen
 import it.unibo.trace.ui.screen.auth.forgotpassword.ForgotPasswordScreen
 import it.unibo.trace.ui.screen.auth.signin.SignInScreen
 import it.unibo.trace.ui.screen.auth.magiclink.MagicLinkSignInScreen
-import it.unibo.trace.ui.screen.auth.singup.SignUpScreen
+import it.unibo.trace.ui.screen.auth.signup.SignUpScreen
 import it.unibo.trace.ui.screen.auth.resetpassword.ResetPasswordScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
@@ -29,6 +31,7 @@ sealed interface Route {
     @Serializable data object Home : Route
     @Serializable data object Profile : Route
     @Serializable data object AddTodo : Route
+    @Serializable data class TodoDetail(val id: Long) : Route
 }
 
 @Composable
@@ -37,7 +40,6 @@ fun NavGraph(
     mainViewModel: MainViewModel = koinViewModel()
 ) {
     val sessionStatus by mainViewModel.sessionStatus.collectAsState()
-    val isAuthenticated = sessionStatus is SessionStatus.Authenticated
 
     LaunchedEffect(Unit) {
         mainViewModel.navigationEvent.collect { routeStr ->
@@ -54,22 +56,22 @@ fun NavGraph(
         startDestination = Route.Home
     ) {
         composable<Route.Login> {
-            UnauthenticatedRoute(isAuthenticated, navController) {
+            UnauthenticatedRoute(sessionStatus, navController) {
                 SignInScreen(navController)
             }
         }
         composable<Route.Registration> {
-            UnauthenticatedRoute(isAuthenticated, navController) {
+            UnauthenticatedRoute(sessionStatus, navController) {
                 SignUpScreen(navController)
             }
         }
         composable<Route.ForgotPassword> {
-            UnauthenticatedRoute(isAuthenticated, navController) {
+            UnauthenticatedRoute(sessionStatus, navController) {
                 ForgotPasswordScreen(navController)
             }
         }
         composable<Route.MagicLink> {
-            UnauthenticatedRoute(isAuthenticated, navController) {
+            UnauthenticatedRoute(sessionStatus, navController) {
                 MagicLinkSignInScreen(navController)
             }
         }
@@ -77,18 +79,24 @@ fun NavGraph(
             ResetPasswordScreen(navController)
         }
         composable<Route.Home> {
-            ProtectedRoute(isAuthenticated, navController) {
+            ProtectedRoute(sessionStatus, navController) {
                 HomeScreen(navController)
             }
         }
         composable<Route.Profile> {
-            ProtectedRoute(isAuthenticated, navController) {
+            ProtectedRoute(sessionStatus, navController) {
                 ProfileScreen(navController)
             }
         }
         composable<Route.AddTodo> {
-            ProtectedRoute(isAuthenticated, navController) {
+            ProtectedRoute(sessionStatus, navController) {
                 AddTodoScreen(navController)
+            }
+        }
+        composable<Route.TodoDetail> { backStackEntry ->
+            ProtectedRoute(sessionStatus, navController) {
+                val detail = backStackEntry.toRoute<Route.TodoDetail>()
+                TodoDetailScreen(navController, detail.id)
             }
         }
     }
@@ -96,34 +104,38 @@ fun NavGraph(
 
 @Composable
 fun ProtectedRoute(
-    isAuthenticated: Boolean,
+    sessionStatus: SessionStatus,
     navController: NavHostController,
     content: @Composable () -> Unit
 ) {
-    if (isAuthenticated) {
-        content()
-    } else {
-        LaunchedEffect(Unit) {
-            navController.navigate(Route.Login) {
-                popUpTo(0) { inclusive = true }
+    when (sessionStatus) {
+        is SessionStatus.Authenticated -> content()
+        is SessionStatus.NotAuthenticated -> {
+            LaunchedEffect(Unit) {
+                navController.navigate(Route.Login) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
         }
+        else -> { /* Initializing: wait */ }
     }
 }
 
 @Composable
 fun UnauthenticatedRoute(
-    isAuthenticated: Boolean,
+    sessionStatus: SessionStatus,
     navController: NavHostController,
     content: @Composable () -> Unit
 ) {
-    if (!isAuthenticated) {
-        content()
-    } else {
-        LaunchedEffect(Unit) {
-            navController.navigate(Route.Home) {
-                popUpTo(0) { inclusive = true }
+    when (sessionStatus) {
+        is SessionStatus.NotAuthenticated -> content()
+        is SessionStatus.Authenticated -> {
+            LaunchedEffect(Unit) {
+                navController.navigate(Route.Home) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
         }
+        else -> { /* Initializing: wait */ }
     }
 }

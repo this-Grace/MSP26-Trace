@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen.auth.signin
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
@@ -41,7 +42,7 @@ class SignInViewModel(private val authService: AuthService) : ViewModel() {
     fun signIn() {
         val state = _uiState.value
         if (state.email.isBlank() || state.password.isBlank()) {
-            UiMessenger.show("Please fill all fields")
+            UiMessenger.show(R.string.error_fill_all_fields)
             return
         }
 
@@ -50,12 +51,12 @@ class SignInViewModel(private val authService: AuthService) : ViewModel() {
             try {
                 authService.signIn(state.email, state.password)
             } catch (e: Exception) {
-                val msg = when {
-                    e.message?.contains("invalid", ignoreCase = true) == true -> "Invalid email or password"
-                    e.message?.contains("network", ignoreCase = true) == true -> "Network error, please check your connection"
-                    else -> "Login failed. Please try again."
+                val msgRes = when {
+                    e.message?.contains("invalid", ignoreCase = true) == true -> R.string.error_invalid_credentials
+                    e.message?.contains("network", ignoreCase = true) == true -> R.string.error_network
+                    else -> R.string.error_login_failed
                 }
-                UiMessenger.show(msg)
+                UiMessenger.show(msgRes)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
@@ -70,7 +71,7 @@ class SignInViewModel(private val authService: AuthService) : ViewModel() {
             try {
                 authService.signInWithGithub()
             } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "GitHub Login failed")
+                UiMessenger.show(R.string.error_github_login_failed)
             }
         }
     }

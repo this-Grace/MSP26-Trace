@@ -1,0 +1,128 @@
+<resources>
+    <string name="app_name">Trace</string>
+
+    <!-- Common -->
+    <string name="cancel">Annulla</string>
+    <string name="delete">Elimina</string>
+    <string name="undo">Annulla</string>
+    <string name="back">Indietro</string>
+
+    <!-- Accessibility -->
+    <string name="task_completed_desc">Task Completato</string>
+    <string name="complete_task_desc">Completa Task</string>
+    <string name="update_photo_desc">Aggiorna foto</string>
+    <string name="hide_password">Nascondi password</string>
+    <string name="show_password">Mostra password</string>
+    <string name="toggle_theme">Cambia tema</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">I miei Task</string>
+    <string name="profile_content_description">Profilo</string>
+    <string name="add_task_content_description">Aggiungi Task</string>
+    <string name="no_tasks_yet">Ancora nessun task!</string>
+    <string name="no_tasks_subtitle">Tocca il tasto + per organizzarti</string>
+    <string name="task_completed">Task completato!</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profilo</string>
+    <string name="logout">Logout</string>
+    <string name="delete_account">Elimina Account</string>
+    <string name="delete_account_confirm">Questa azione è irreversibile. Digita la tua email per confermare:</string>
+    <string name="account_info">Informazioni Account</string>
+    <string name="email_label">Email</string>
+    <string name="login_method_label">Metodo di Accesso</string>
+    <string name="appearance">Aspetto</string>
+    <string name="sign_out">Esci</string>
+    <string name="last_login">Ultimo accesso: %1$s</string>
+    <string name="verify_identity">Verifica la tua identità per procedere</string>
+    <string name="avatar_content_description">Avatar</string>
+    <string name="take_photo">Scatta foto</string>
+    <string name="choose_gallery">Scegli dalla galleria</string>
+    <string name="remove_photo">Elimina foto</string>
+    <string name="email_placeholder">esempio@email.it</string>
+    <string name="never">Mai</string>
+
+    <!-- Add Task Screen -->
+    <string name="add_task_title">Nuovo Task</string>
+    <string name="create_task_button">Crea Task</string>
+    <string name="add_task_headline">Pronto per un nuovo task?</string>
+    <string name="add_task_subtitle">Inserisci i dettagli qui sotto</string>
+    <string name="task_name_label">Nome del Task</string>
+    <string name="task_name_placeholder">es. Spesa settimanale</string>
+    <string name="task_description_label">Descrizione (Opzionale)</string>
+    <string name="task_description_placeholder">Aggiungi altri dettagli…</string>
+
+    <!-- Task Details Screen -->
+    <string name="task_details_title">Dettagli Task</string>
+    <string name="description_label">Descrizione</string>
+    <string name="task_details_label">Dettagli</string>
+    <string name="no_description">Nessuna descrizione fornita.</string>
+
+    <!-- Auth Screens -->
+    <string name="password_label">Password</string>
+    <string name="password_placeholder">Inserisci Password</string>
+    <string name="forgot_password_title">Password Dimenticata</string>
+    <string name="forgot_password_subtitle">Inserisci la tua email e ti invieremo un link per resettare la tua password.</string>
+    <string name="send_reset_link">Invia Link di Reset</string>
+    <string name="remember_password">Ricordi la password? </string>
+    <string name="reset_link_sent_success">Istruzioni inviate! Per favore controlla la tua posta.</string>
+    <string name="error_enter_email">Per favore inserisci la tua email</string>
+    <string name="error_network">Errore di rete, controlla la tua connessione</string>
+    <string name="error_reset_failed">Impossibile inviare il link di reset. Verifica la tua email.</string>
+    <string name="sign_in">Accedi</string>
+    <string name="sign_in_magic_link">Accedi con Magic Link</string>
+    <string name="magic_link_title">Magic Link</string>
+    <string name="magic_link_subtitle">Inserisci la tua email e ti invieremo un link per accedere all\'istante.</string>
+    <string name="resend_link">Reinvia Link</string>
+    <string name="send_link">Invia Link</string>
+    <string name="back_to_sign_in">Torna all\'Accesso</string>
+    <string name="reset_password_title">Nuova Password</string>
+    <string name="reset_password_subtitle">Inserisci la tua nuova password qui sotto.</string>
+    <string name="update_password_button">Aggiorna Password</string>
+    <string name="or_separator">OPPURE</string>
+    <string name="sign_in_github">Accedi con GitHub</string>
+    <string name="new_to_trace">Nuovo su TRACE? </string>
+    <string name="sign_up">Registrati</string>
+    <string name="join_trace">Unisciti a %1$s</string>
+    <string name="create_account">Crea Account</string>
+    <string name="confirm_password_label">Conferma Password</string>
+    <string name="confirm_password_placeholder">Conferma Password</string>
+    <string name="already_have_account">Hai già un account? </string>
+
+    <!-- Messages & Errors -->
+    <string name="error_empty_name">Il nome non può essere vuoto</string>
+    <string name="error_not_logged_in">Utente non loggato</string>
+    <string name="task_created_success">Task creato con successo!</string>
+    <string name="error_save_failed">Errore nel salvataggio del task</string>
+    <string name="error_task_not_found">Task non trovato</string>
+    <string name="error_fetch_failed">Errore nel caricamento del task</string>
+    <string name="error_decode_image">Impossibile decodificare l\'immagine</string>
+    <string name="photo_updated_success">Foto aggiornata con successo!</string>
+    <string name="photo_removed">Foto rimossa</string>
+    <string name="logout_success">Logout effettuato con successo!</string>
+    <string name="error_email_mismatch">L\'email non corrisponde</string>
+    <string name="account_deleted_success">Account eliminato con successo!</string>
+    <string name="magic_link_sent_success">Magic link inviato! Controlla la tua posta.</string>
+    <string name="error_magic_link_failed">Impossibile inviare il magic link</string>
+    <string name="error_fill_all_fields">Per favore compila tutti i campi</string>
+    <string name="error_passwords_not_match">Le password non corrispondono</string>
+    <string name="password_updated_success">Password aggiornata con successo!</string>
+    <string name="account_created_success">Account creato! Per favore controlla la tua email.</string>
+    <string name="error_email_already_in_use">Email già in uso</string>
+    <string name="error_password_weak">La password è troppo debole</string>
+    <string name="error_registration_failed">Registrazione fallita. Per favore riprova.</string>
+    <string name="error_github_login_failed">Login con GitHub fallito</string>
+    <string name="error_invalid_credentials">Email o password non validi</string>
+    <string name="error_login_failed">Login fallito. Per favore riprova.</string>
+    <string name="error_reset_expired">Il link di reset è scaduto. Per favore richiedine uno nuovo.</string>
+    <string name="error_user_not_authenticated">Utente non autenticato</string>
+    <string name="error_network_connection">Errore di rete. Per favore controlla la tua connessione internet.</string>
+    <string name="error_unauthorized">Non autorizzato. Per favore accedi di nuovo.</string>
+    <string name="error_forbidden">Azione proibita.</string>
+    <string name="error_not_found">Risorsa non trovata.</string>
+    <string name="error_conflict">Si è verificato un conflitto (es. l\'elemento esiste già).</string>
+    <string name="error_server">Errore del server (%1$d). Per favore riprova più tardi.</string>
+    <string name="error_timeout">Connessione scaduta. Per favore riprova.</string>
+    <string name="error_unexpected">Si è verificato un errore imprevisto.</string>
+    <string name="error_with_prefix">Errore: %1$s</string>
+</resources>

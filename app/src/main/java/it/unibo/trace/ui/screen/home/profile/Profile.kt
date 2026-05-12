@@ -1,14 +1,13 @@
 package it.unibo.trace.ui.screen.home.profile
 
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,13 +19,16 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.rounded.Brightness4
+import androidx.compose.material.icons.rounded.BrightnessAuto
+import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,27 +36,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import coil.ImageLoader
-import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
+import it.unibo.trace.R
 import it.unibo.trace.ui.composable.TraceInfoItem
-import it.unibo.trace.ui.composable.ThemeSelector
-import it.unibo.trace.ui.composable.card.TraceCard
 import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.composable.button.TraceButton
-import it.unibo.trace.ui.composable.input.EmailField
+import it.unibo.trace.ui.composable.card.TraceCard
+import it.unibo.trace.ui.composable.dialog.DeleteAccountDialog
+import it.unibo.trace.ui.composable.image.ProfileAvatar
+import it.unibo.trace.ui.composable.sheet.ImageSourcePickerSheet
+import it.unibo.trace.ui.theme.AppTheme
 import it.unibo.trace.utils.BiometricAuthenticator
 import org.koin.androidx.compose.koinViewModel
 
-/**
- * Screen displaying the user's profile information and theme settings.
- *
- * @param navController Controller for navigating between screens.
- * @param viewModel ViewModel providing the screen's state and actions.
- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
@@ -65,6 +65,19 @@ fun ProfileScreen(
     val activity = context as? FragmentActivity
     val uiState by viewModel.uiState.collectAsState()
     val theme by viewModel.theme.collectAsState()
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+            uri -> uri?.let { viewModel.uploadProfilePicture(it, context.contentResolver) }
+        }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            success -> if (success) viewModel.onCameraResult(context.contentResolver)
+        }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+            isGranted -> if (isGranted) viewModel.startCamera(context, cameraLauncher)
+        }
 
     val authenticator = remember(activity) {
         activity?.let { BiometricAuthenticator(it) }
@@ -79,30 +92,31 @@ fun ProfileScreen(
     }
 
     if (uiState.showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.setShowDeleteDialog(false) },
-            title = { Text("Delete Account") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("This action is irreversible. Please type your email to confirm:")
-                    EmailField(
-                        value = uiState.deleteConfirmEmail,
-                        onValueChange = { viewModel.updateDeleteConfirmEmail(it) }
-                    )
-                }
+        DeleteAccountDialog(
+            emailInput = uiState.deleteConfirmEmail,
+            isDeleting = uiState.isDeleting,
+            onEmailChange = viewModel::updateDeleteConfirmEmail,
+            onConfirm = viewModel::deleteAccount,
+            onDismiss = { viewModel.setShowDeleteDialog(false) }
+        )
+    }
+
+    if (uiState.showImagePicker) {
+        ImageSourcePickerSheet(
+            onDismiss = { viewModel.setShowImagePicker(false) },
+            onTakePhoto = {
+                viewModel.setShowImagePicker(false)
+                viewModel.handleCameraAction(context, permissionLauncher, cameraLauncher)
             },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.deleteAccount() },
-                    enabled = !uiState.isDeleting
-                ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
+            onChooseGallery = {
+                viewModel.setShowImagePicker(false)
+                galleryLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             },
-            dismissButton = {
-                TextButton(onClick = { viewModel.setShowDeleteDialog(false) }) {
-                    Text("Cancel")
-                }
+            onRemovePhoto = {
+                viewModel.setShowImagePicker(false)
+                viewModel.removeProfilePicture()
             }
         )
     }
@@ -111,8 +125,25 @@ fun ProfileScreen(
         modifier = modifier,
         topBar = {
             TraceTopBar(
-                title = "Profile",
-                onNavigateBack = { navController.popBackStack() }
+                title = stringResource(R.string.profile_title),
+                onNavigateBack = { navController.popBackStack() },
+                actions = {
+                    val icon = when (theme) {
+                        AppTheme.LIGHT -> Icons.Rounded.LightMode
+                        AppTheme.DARK -> Icons.Rounded.Brightness4
+                        AppTheme.SYSTEM -> Icons.Rounded.BrightnessAuto
+                    }
+                    IconButton(onClick = {
+                        val nextTheme = when (theme) {
+                            AppTheme.SYSTEM -> AppTheme.LIGHT
+                            AppTheme.LIGHT -> AppTheme.DARK
+                            AppTheme.DARK -> AppTheme.SYSTEM
+                        }
+                        viewModel.setTheme(nextTheme)
+                    }) {
+                        Icon(imageVector = icon, contentDescription = stringResource(R.string.toggle_theme))
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -126,22 +157,15 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(2f)
-            ) {
-                AsyncImage(
-                    model = "https://api.dicebear.com/9.x/avataaars/svg?seed=${uiState.email}",
-                    contentDescription = "Avatar",
-                    imageLoader = svgImageLoader,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+            ProfileAvatar(
+                url = uiState.effectiveAvatarUrl,
+                imageLoader = svgImageLoader,
+                onEditClick = { viewModel.setShowImagePicker(true) }
+            )
 
-            TraceCard(title = "Account Information") {
+            TraceCard(title = stringResource(R.string.account_info)) {
                 TraceInfoItem(
-                    label = "Email",
+                    label = stringResource(R.string.email_label),
                     value = uiState.email,
                     icon = Icons.Default.Email
                 )
@@ -150,16 +174,9 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
                 )
                 TraceInfoItem(
-                    label = "Login Method",
+                    label = stringResource(R.string.login_method_label),
                     value = uiState.loginType,
                     icon = Icons.Default.Badge
-                )
-            }
-
-            TraceCard(title = "Appearance") {
-                ThemeSelector(
-                    selectedTheme = theme,
-                    onThemeSelected = { viewModel.setTheme(it) }
                 )
             }
 
@@ -177,43 +194,33 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     TraceButton(
-                        text = "Delete",
-                        onClick = {
-                            val canAuth = authenticator?.canAuthenticate()
-                            if (canAuth == BiometricManager.BIOMETRIC_SUCCESS) {
-                                authenticator.authenticate(
-                                    title = "Delete Account",
-                                    subtitle = "Verify your identity to proceed",
-                                    onSuccess = { viewModel.deleteAccount() },
-                                    onError = { code, _ ->
-                                        if (code != BiometricPrompt.ERROR_USER_CANCELED) {
-                                            viewModel.setShowDeleteDialog(true)
-                                        }
-                                    }
-                                )
-                            } else {
-                                viewModel.setShowDeleteDialog(true)
-                            }
-                        },
+                        text = stringResource(R.string.delete),
+                        onClick = { viewModel.handleDeleteClick(authenticator, context) },
                         modifier = Modifier.weight(1f),
                         icon = {
-                            Icon(Icons.Default.DeleteForever, contentDescription = null)
+                            Icon(Icons.Default.DeleteForever, contentDescription = stringResource(R.string.delete))
                         }
                     )
 
                     TraceButton(
-                        text = "Sign Out",
+                        text = stringResource(R.string.sign_out),
                         onClick = { viewModel.signOut() },
                         modifier = Modifier.weight(1f),
                         outlined = true,
                         icon = {
-                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = stringResource(R.string.logout))
                         }
                     )
                 }
 
+                val lastLoginText = if (uiState.formattedLastLogin.isEmpty()) {
+                    stringResource(R.string.never)
+                } else {
+                    uiState.formattedLastLogin
+                }
+
                 Text(
-                    text = "Last login: ${uiState.formattedLastLogin}",
+                    text = stringResource(R.string.last_login, lastLoginText),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -1,5 +1,6 @@
 package it.unibo.trace.ui
 
+import it.unibo.trace.R
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,8 +9,9 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.ui.theme.AppTheme
-import it.unibo.trace.utils.MessageDuration
+import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.utils.UiMessenger
+import it.unibo.trace.utils.toUserMessageResId
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,7 +47,7 @@ class MainViewModel(
 
         val hasError = data.getQueryParameter("error") != null
         if (hasError) {
-            UiMessenger.show("Reset link expired. Please request a new one.", MessageDuration.LONG)
+            UiMessenger.show(R.string.error_reset_expired, SnackbarDuration.Long)
             return
         }
 
@@ -63,7 +65,7 @@ class MainViewModel(
                     }
                 }
             } catch (e: Exception) {
-                UiMessenger.show("Error: ${e.localizedMessage}", MessageDuration.LONG)
+                UiMessenger.show(e.toUserMessageResId(), SnackbarDuration.Long)
             }
         }
     }

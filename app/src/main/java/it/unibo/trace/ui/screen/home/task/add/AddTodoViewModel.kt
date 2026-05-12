@@ -1,5 +1,6 @@
-package it.unibo.trace.ui.screen.home.todo
+package it.unibo.trace.ui.screen.home.task.add
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.entities.TodoItem
@@ -13,12 +14,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import it.unibo.trace.utils.toUserMessageResId
 
 /**
  * UI State for the AddTodo screen.
  */
 data class AddTodoUiState(
     val todoName: String = "",
+    val todoDescription: String = "",
     val isSaving: Boolean = false,
     val errorMessage: String? = null
 )
@@ -37,13 +40,20 @@ class AddTodoViewModel(
         _uiState.update { it.copy(todoName = name, errorMessage = null) }
     }
 
+    fun updateTodoDescription(description: String) {
+        _uiState.update { it.copy(todoDescription = description) }
+    }
+
     /**
      * Saves a new Todo item to the database.
      */
     fun saveTodo(onSuccess: () -> Unit) {
         val name = _uiState.value.todoName.trim()
+        val description = _uiState.value.todoDescription.trim().ifBlank { null }
+        
         if (name.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Name cannot be empty") }
+            _uiState.update { it.copy(errorMessage = null) }
+            UiMessenger.show(R.string.error_empty_name)
             return
         }
 
@@ -53,22 +63,25 @@ class AddTodoViewModel(
                 val user = authService.getCurrentUser()
                 if (user == null) {
                     _uiState.update { it.copy(isSaving = false) }
-                    UiMessenger.show("User not logged in")
+                    UiMessenger.show(R.string.error_not_logged_in)
                     return@launch
                 }
 
-                val newTodo = TodoItem(name = name, uid = user.id)
+                val newTodo = TodoItem(
+                    name = name,
+                    description = description,
+                    uid = user.id
+                )
 
                 withContext(Dispatchers.IO) {
                     todoService.insertTodo(newTodo)
                 }
 
-                UiMessenger.show("Task created successfully!")
+                UiMessenger.show(R.string.task_created_success)
                 onSuccess()
             } catch (e: Exception) {
-                val msg = e.localizedMessage ?: "Failed to save todo"
-                _uiState.update { it.copy(errorMessage = msg) }
-                UiMessenger.show("Error: $msg")
+                _uiState.update { it.copy(errorMessage = null) }
+                UiMessenger.show(e.toUserMessageResId())
             } finally {
                 _uiState.update { it.copy(isSaving = false) }
             }

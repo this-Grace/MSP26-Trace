@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.composable.card
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,7 @@ import it.unibo.trace.data.supabase.entities.TodoItem
  *
  * @param item The [TodoItem] to display.
  * @param onToggle Callback invoked when the user clicks on the card (to complete the task).
+ * @param onLongClick Optional callback for long press events.
  * @param isCompleted Whether the task is currently marked as completed (pending deletion).
  * @param modifier Optional [Modifier] for the card.
  */
@@ -32,11 +35,13 @@ fun TodoCard(
     item: TodoItem,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     isCompleted: Boolean = false
 ) {
     TraceCard(
         modifier = modifier.alpha(if (isCompleted) 0.5f else 1f),
-        onClick = onToggle
+        onClick = onToggle,
+        onLongClick = onLongClick
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -45,7 +50,7 @@ fun TodoCard(
         ) {
             Icon(
                 imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-                contentDescription = if (isCompleted) "Task Completed" else "Complete Task",
+                contentDescription = if (isCompleted) stringResource(R.string.task_completed_desc) else stringResource(R.string.complete_task_desc),
                 tint = if (isCompleted) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )

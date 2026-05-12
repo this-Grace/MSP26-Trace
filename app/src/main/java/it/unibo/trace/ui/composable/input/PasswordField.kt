@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.composable.input
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
@@ -46,7 +48,7 @@ fun PasswordField(
         ),
         trailingIcon = {
             val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-            val description = if (passwordVisible) "Hide password" else "Show password"
+            val description = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
 
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                 Icon(imageVector = image, contentDescription = description)

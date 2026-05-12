@@ -74,6 +74,8 @@ dependencies {
     testImplementation(libs.junit)
     implementation(libs.coil.compose)
     implementation(libs.coil.svg)
+    implementation(libs.supabase.storage)
+    implementation(libs.kotlinx.serialization.json)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

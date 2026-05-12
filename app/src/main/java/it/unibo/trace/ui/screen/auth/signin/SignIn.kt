@@ -67,13 +67,13 @@ fun SignInScreen(
 
             PasswordField(
                 value = uiState.password,
-                label = "Password",
-                placeholder = "Insert Password",
+                label = stringResource(R.string.password_label),
+                placeholder = stringResource(R.string.password_placeholder),
                 onValueChange = { viewModel.updatePassword(it) }
             )
 
             Text(
-                text = "Forgot Password?",
+                text = stringResource(R.string.forgot_password_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -85,7 +85,7 @@ fun SignInScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             TraceButton(
-                text = "Sign In",
+                text = stringResource(R.string.sign_in),
                 isLoading = uiState.isLoading,
                 onClick = { viewModel.signIn() }
             )
@@ -93,19 +93,19 @@ fun SignInScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             TraceButton(
-                text = "Sign in with Magic Link",
+                text = stringResource(R.string.sign_in_magic_link),
                 outlined = true,
                 onClick = { navController.navigate(Route.MagicLink) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TraceSeparator(text = "OR")
+            TraceSeparator(text = stringResource(R.string.or_separator))
 
             Spacer(modifier = Modifier.height(16.dp))
 
             SocialSignInButton(
-                text = "Sign in with GitHub",
+                text = stringResource(R.string.sign_in_github),
                 iconRes = R.drawable.ic_github_logo,
                 onClick = { viewModel.signInWithGithub() }
             )
@@ -114,11 +114,11 @@ fun SignInScreen(
 
             Row {
                 Text(
-                    "New to TRACE? ",
+                    stringResource(R.string.new_to_trace),
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    "Sign Up",
+                    stringResource(R.string.sign_up),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {

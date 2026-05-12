@@ -1,9 +1,10 @@
-package it.unibo.trace.ui.screen.auth.singup
+package it.unibo.trace.ui.screen.auth.signup
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.data.supabase.service.AuthService
-import it.unibo.trace.utils.MessageDuration
 import it.unibo.trace.utils.UiMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,11 +48,11 @@ class SignUpViewModel(private val authService: AuthService) : ViewModel() {
     fun signUp(onSuccess: () -> Unit) {
         val state = _uiState.value
         if (state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank()) {
-            UiMessenger.show("Please fill all fields")
+            UiMessenger.show(R.string.error_fill_all_fields)
             return
         }
         if (state.password != state.confirmPassword) {
-            UiMessenger.show("Passwords do not match")
+            UiMessenger.show(R.string.error_passwords_not_match)
             return
         }
 
@@ -59,15 +60,15 @@ class SignUpViewModel(private val authService: AuthService) : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.signUp(state.email, state.password)
-                UiMessenger.show("Account created! Please check your email.", MessageDuration.LONG)
+                UiMessenger.show(R.string.account_created_success, SnackbarDuration.Long)
                 onSuccess()
             } catch (e: Exception) {
-                val msg = when {
-                    e.message?.contains("already registered", ignoreCase = true) == true -> "Email already in use"
-                    e.message?.contains("weak", ignoreCase = true) == true -> "Password is too weak"
-                    else -> "Registration failed. Please try again."
+                val msgRes = when {
+                    e.message?.contains("already registered", ignoreCase = true) == true -> R.string.error_email_already_in_use
+                    e.message?.contains("weak", ignoreCase = true) == true -> R.string.error_password_weak
+                    else -> R.string.error_registration_failed
                 }
-                UiMessenger.show(msg)
+                UiMessenger.show(msgRes)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
@@ -82,7 +83,7 @@ class SignUpViewModel(private val authService: AuthService) : ViewModel() {
             try {
                 authService.signInWithGithub()
             } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "GitHub Login failed")
+                UiMessenger.show(R.string.error_github_login_failed)
             }
         }
     }

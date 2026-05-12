@@ -3,4 +3,129 @@
     <style name="Theme.MyApplication" parent="android:Theme.Material.Light.NoActionBar" >
         <item name="android:fontFamily">@font/space_grotesk</item>
     </style>
+
+    <!-- Common -->
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="undo">Undo</string>
+    <string name="back">Back</string>
+
+    <!-- Accessibility -->
+    <string name="task_completed_desc">Task Completed</string>
+    <string name="complete_task_desc">Complete Task</string>
+    <string name="update_photo_desc">Update photo</string>
+    <string name="hide_password">Hide password</string>
+    <string name="show_password">Show password</string>
+    <string name="toggle_theme">Toggle theme</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">My Tasks</string>
+    <string name="profile_content_description">Profile</string>
+    <string name="add_task_content_description">Add Task</string>
+    <string name="no_tasks_yet">No tasks yet!</string>
+    <string name="no_tasks_subtitle">Tap the + button to stay organized</string>
+    <string name="task_completed">Task completed!</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="logout">Logout</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_confirm">This action is irreversible. Please type your email to confirm:</string>
+    <string name="account_info">Account Information</string>
+    <string name="email_label">Email</string>
+    <string name="login_method_label">Login Method</string>
+    <string name="appearance">Appearance</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="last_login">Last login: %1$s</string>
+    <string name="verify_identity">Verify your identity to proceed</string>
+    <string name="avatar_content_description">Avatar</string>
+    <string name="take_photo">Take photo</string>
+    <string name="choose_gallery">Choose from gallery</string>
+    <string name="remove_photo">Delete photo</string>
+    <string name="email_placeholder">example@email.com</string>
+    <string name="never">Never</string>
+
+    <!-- Add Task Screen -->
+    <string name="add_task_title">New Task</string>
+    <string name="create_task_button">Create Task</string>
+    <string name="add_task_headline">Ready for a new task?</string>
+    <string name="add_task_subtitle">Fill in the details below</string>
+    <string name="task_name_label">Task Name</string>
+    <string name="task_name_placeholder">e.g. Weekly Groceries</string>
+    <string name="task_description_label">Description (Optional)</string>
+    <string name="task_description_placeholder">Add more details about your task…</string>
+
+    <!-- Task Details Screen -->
+    <string name="task_details_title">Task Details</string>
+    <string name="description_label">Description</string>
+    <string name="task_details_label">Task details</string>
+    <string name="no_description">No description provided.</string>
+
+    <!-- Auth Screens -->
+    <string name="password_label">Password</string>
+    <string name="password_placeholder">Insert Password</string>
+    <string name="forgot_password_title">Forgot Password</string>
+    <string name="forgot_password_subtitle">Enter your email address and, we will send you a link to reset your password.</string>
+    <string name="send_reset_link">Send Reset Link</string>
+    <string name="remember_password">Remember password? </string>
+    <string name="reset_link_sent_success">Instructions sent! Please check your inbox.</string>
+    <string name="error_enter_email">Please enter your email</string>
+    <string name="error_network">Network error, please check your connection</string>
+    <string name="error_reset_failed">Failed to send reset link. Verify your email.</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_in_magic_link">Sign in with Magic Link</string>
+    <string name="magic_link_title">Magic Link</string>
+    <string name="magic_link_subtitle">Enter your email and we\'ll send you a link to sign in instantly.</string>
+    <string name="resend_link">Resend Link</string>
+    <string name="send_link">Send Link</string>
+    <string name="back_to_sign_in">Back to Sign In</string>
+    <string name="reset_password_title">New Password</string>
+    <string name="reset_password_subtitle">Please enter your new password below.</string>
+    <string name="update_password_button">Update Password</string>
+    <string name="or_separator">OR</string>
+    <string name="sign_in_github">Sign in with GitHub</string>
+    <string name="new_to_trace">New to TRACE? </string>
+    <string name="sign_up">Sign Up</string>
+    <string name="join_trace">Join %1$s</string>
+    <string name="create_account">Create Account</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="confirm_password_placeholder">Confirm Password</string>
+    <string name="already_have_account">Already have an account? </string>
+
+    <!-- Messages & Errors -->
+    <string name="error_empty_name">Name cannot be empty</string>
+    <string name="error_not_logged_in">User not logged in</string>
+    <string name="task_created_success">Task created successfully!</string>
+    <string name="error_save_failed">Failed to save todo</string>
+    <string name="error_task_not_found">Task not found</string>
+    <string name="error_fetch_failed">Error fetching task</string>
+    <string name="error_decode_image">Could not decode image</string>
+    <string name="photo_updated_success">Photo updated successfully!</string>
+    <string name="photo_removed">Photo removed</string>
+    <string name="logout_success">Logout done successfully!</string>
+    <string name="error_email_mismatch">Email does not match</string>
+    <string name="account_deleted_success">Account deleted successfully!</string>
+    <string name="magic_link_sent_success">Magic link sent! Check your inbox.</string>
+    <string name="error_magic_link_failed">Failed to send magic link</string>
+    <string name="error_fill_all_fields">Please fill all fields</string>
+    <string name="error_passwords_not_match">Passwords do not match</string>
+    <string name="password_updated_success">Password updated successfully!</string>
+    <string name="account_created_success">Account created! Please check your email.</string>
+    <string name="error_email_already_in_use">Email already in use</string>
+    <string name="error_password_weak">Password is too weak</string>
+    <string name="error_registration_failed">Registration failed. Please try again.</string>
+    <string name="error_github_login_failed">GitHub Login failed</string>
+    <string name="error_invalid_credentials">Invalid email or password</string>
+    <string name="error_login_failed">Login failed. Please try again.</string>
+    <string name="error_reset_expired">Reset link expired. Please request a new one.</string>
+    <string name="error_user_not_authenticated">User not authenticated</string>
+    <string name="error_network_connection">Network error. Please check your internet connection.</string>
+    <string name="error_unauthorized">Unauthorized. Please sign in again.</string>
+    <string name="error_forbidden">Forbidden action.</string>
+    <string name="error_not_found">Resource not found.</string>
+    <string name="error_conflict">Conflict occurred (e.g., item already exists).</string>
+    <string name="error_server">Server error (%1$d). Please try again later.</string>
+    <string name="error_timeout">Connection timed out. Please try again.</string>
+    <string name="error_unexpected">An unexpected error occurred.</string>
+    <string name="error_with_prefix">Error: %1$s</string>
 </resources>

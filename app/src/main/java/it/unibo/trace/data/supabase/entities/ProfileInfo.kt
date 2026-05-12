@@ -7,6 +7,7 @@ import java.time.LocalDateTime
  */
 data class ProfileInfo(
     val email: String,
+    val avatarUrl: String? = null,
     val loginType: String,
     val lastLogin: LocalDateTime?
 )

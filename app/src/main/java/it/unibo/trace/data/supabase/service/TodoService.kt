@@ -28,6 +28,21 @@ class TodoService(private val supabase: SupabaseClient) {
     }
 
     /**
+     * Fetches a single todo item by its ID.
+     *
+     * @param todoId The unique ID of the todo to retrieve.
+     * @return The [TodoItem] if found, null otherwise.
+     */
+    suspend fun getTodoById(todoId: Long): TodoItem? {
+        return supabase.from(TABLE_NAME)
+            .select {
+                filter {
+                    eq("id", todoId)
+                }
+            }.decodeSingleOrNull<TodoItem>()
+    }
+
+    /**
      * Inserts a new todo item into the database.
      * 
      * @param todo The [TodoItem] to be inserted.
