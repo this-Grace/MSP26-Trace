@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen.auth.magiclink
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
@@ -36,7 +37,7 @@ class MagicLinkViewModel(private val authService: AuthService) : ViewModel() {
     fun sendMagicLink() {
         val email = _uiState.value.email
         if (email.isBlank()) {
-            UiMessenger.show("Please enter your email")
+            UiMessenger.show(R.string.error_enter_email)
             return
         }
 
@@ -45,9 +46,9 @@ class MagicLinkViewModel(private val authService: AuthService) : ViewModel() {
             try {
                 authService.sendMagicLink(email)
                 _uiState.update { it.copy(isSent = true) }
-                UiMessenger.show("Magic link sent! Check your inbox.")
+                UiMessenger.show(R.string.magic_link_sent_success)
             } catch (e: Exception) {
-                UiMessenger.show(e.localizedMessage ?: "Failed to send magic link")
+                UiMessenger.show(R.string.error_magic_link_failed)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }

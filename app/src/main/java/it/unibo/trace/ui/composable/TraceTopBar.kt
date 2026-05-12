@@ -14,7 +14,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import it.unibo.trace.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +42,7 @@ fun TraceTopBar(
                 IconButton(onClick = onNavigateBack) {
                     Icon(
                         imageVector = navigationIcon,
-                        contentDescription = "Localized description"
+                        contentDescription = stringResource(R.string.back)
                     )
                 }
             }

@@ -6,8 +6,6 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import it.unibo.trace.data.supabase.entities.ProfileInfo
-import it.unibo.trace.utils.UiMessenger
-import it.unibo.trace.utils.toUserMessage
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.ZoneId

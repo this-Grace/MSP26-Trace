@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.composable.image
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -43,7 +45,7 @@ fun ProfileAvatar(
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.align(Alignment.BottomEnd)
         ) {
-            Icon(Icons.Default.AddAPhoto, contentDescription = "Update photo")
+            Icon(Icons.Default.AddAPhoto, contentDescription = stringResource(R.string.update_photo_desc))
         }
     }
 }

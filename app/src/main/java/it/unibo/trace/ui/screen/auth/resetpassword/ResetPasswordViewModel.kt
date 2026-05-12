@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen.auth.resetpassword
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
@@ -43,11 +44,11 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
     fun updatePassword() {
         val state = _uiState.value
         if (state.password.isBlank() || state.confirmPassword.isBlank()) {
-            UiMessenger.show("Please fill all fields")
+            UiMessenger.show(R.string.error_fill_all_fields)
             return
         }
         if (state.password != state.confirmPassword) {
-            UiMessenger.show("Passwords do not match")
+            UiMessenger.show(R.string.error_passwords_not_match)
             return
         }
 
@@ -55,11 +56,11 @@ class ResetPasswordViewModel(private val authService: AuthService) : ViewModel()
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.updatePassword(state.password)
-                UiMessenger.show("Password updated successfully!", SnackbarDuration.Long)
+                UiMessenger.show(R.string.password_updated_success, SnackbarDuration.Long)
                 authService.signOut()
                 _uiState.update { it.copy(isSuccess = true) }
             } catch (e: Exception) {
-                UiMessenger.show("Error: ${e.localizedMessage}")
+                UiMessenger.show(R.string.error_with_prefix, e.localizedMessage ?: "")
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }

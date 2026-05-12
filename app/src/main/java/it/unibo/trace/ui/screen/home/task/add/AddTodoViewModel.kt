@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen.home.task.add
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.entities.TodoItem
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import it.unibo.trace.utils.toUserMessageResId
 
 /**
  * UI State for the AddTodo screen.
@@ -50,7 +52,8 @@ class AddTodoViewModel(
         val description = _uiState.value.todoDescription.trim().ifBlank { null }
         
         if (name.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Name cannot be empty") }
+            _uiState.update { it.copy(errorMessage = null) }
+            UiMessenger.show(R.string.error_empty_name)
             return
         }
 
@@ -60,7 +63,7 @@ class AddTodoViewModel(
                 val user = authService.getCurrentUser()
                 if (user == null) {
                     _uiState.update { it.copy(isSaving = false) }
-                    UiMessenger.show("User not logged in")
+                    UiMessenger.show(R.string.error_not_logged_in)
                     return@launch
                 }
 
@@ -74,12 +77,11 @@ class AddTodoViewModel(
                     todoService.insertTodo(newTodo)
                 }
 
-                UiMessenger.show("Task created successfully!")
+                UiMessenger.show(R.string.task_created_success)
                 onSuccess()
             } catch (e: Exception) {
-                val msg = e.localizedMessage ?: "Failed to save todo"
-                _uiState.update { it.copy(errorMessage = msg) }
-                UiMessenger.show("Error: $msg")
+                _uiState.update { it.copy(errorMessage = null) }
+                UiMessenger.show(e.toUserMessageResId())
             } finally {
                 _uiState.update { it.copy(isSaving = false) }
             }

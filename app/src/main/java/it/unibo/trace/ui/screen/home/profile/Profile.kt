@@ -141,7 +141,7 @@ fun ProfileScreen(
                         }
                         viewModel.setTheme(nextTheme)
                     }) {
-                        Icon(imageVector = icon, contentDescription = "Toggle theme")
+                        Icon(imageVector = icon, contentDescription = stringResource(R.string.toggle_theme))
                     }
                 }
             )
@@ -198,7 +198,7 @@ fun ProfileScreen(
                         onClick = { viewModel.handleDeleteClick(authenticator, context) },
                         modifier = Modifier.weight(1f),
                         icon = {
-                            Icon(Icons.Default.DeleteForever, contentDescription = "Delete")
+                            Icon(Icons.Default.DeleteForever, contentDescription = stringResource(R.string.delete))
                         }
                     )
 
@@ -208,13 +208,19 @@ fun ProfileScreen(
                         modifier = Modifier.weight(1f),
                         outlined = true,
                         icon = {
-                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
+                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = stringResource(R.string.logout))
                         }
                     )
                 }
 
+                val lastLoginText = if (uiState.formattedLastLogin.isEmpty()) {
+                    stringResource(R.string.never)
+                } else {
+                    uiState.formattedLastLogin
+                }
+
                 Text(
-                    text = stringResource(R.string.last_login, uiState.formattedLastLogin),
+                    text = stringResource(R.string.last_login, lastLoginText),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

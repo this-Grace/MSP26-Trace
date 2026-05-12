@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen.home.task.detail
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.entities.TodoItem
@@ -42,12 +43,12 @@ class TodoDetailViewModel(
                 if (item != null) {
                     _uiState.update { it.copy(todo = item) }
                 } else {
-                    _uiState.update { it.copy(errorMessage = "Task not found") }
-                    UiMessenger.show("Task not found")
+                    _uiState.update { it.copy(errorMessage = null) }
+                    UiMessenger.show(R.string.error_task_not_found)
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(errorMessage = e.localizedMessage) }
-                UiMessenger.show("Error fetching task: ${e.localizedMessage}")
+                _uiState.update { it.copy(errorMessage = null) }
+                UiMessenger.show(R.string.error_fetch_failed)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }

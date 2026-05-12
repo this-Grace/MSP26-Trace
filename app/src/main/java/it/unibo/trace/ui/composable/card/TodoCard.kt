@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.composable.card
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,7 +50,7 @@ fun TodoCard(
         ) {
             Icon(
                 imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-                contentDescription = if (isCompleted) "Task Completed" else "Complete Task",
+                contentDescription = if (isCompleted) stringResource(R.string.task_completed_desc) else stringResource(R.string.complete_task_desc),
                 tint = if (isCompleted) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )

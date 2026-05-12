@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.screen.home.task.add
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,14 +47,14 @@ fun AddTodoScreen(
         modifier = modifier,
         topBar = {
             TraceTopBar(
-                title = "New Task",
+                title = stringResource(R.string.add_task_title),
                 onNavigateBack = { navController.popBackStack() }
             )
         },
         bottomBar = {
             Box(modifier = Modifier.padding(24.dp)) {
                 TraceButton(
-                    text = "Create Task",
+                    text = stringResource(R.string.create_task_button),
                     isLoading = uiState.isSaving,
                     onClick = {
                         viewModel.saveTodo(onSuccess = {
@@ -91,12 +93,12 @@ fun AddTodoScreen(
                 }
                 Column {
                     Text(
-                        text = "Ready for a new task?",
+                        text = stringResource(R.string.add_task_headline),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Fill in the details below",
+                        text = stringResource(R.string.add_task_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -104,10 +106,10 @@ fun AddTodoScreen(
             }
 
             TraceTextField(
-                label = "Task Name",
+                label = stringResource(R.string.task_name_label),
                 value = uiState.todoName,
                 onValueChange = { viewModel.updateTodoName(it) },
-                placeholder = "e.g. Weekly Groceries",
+                placeholder = stringResource(R.string.task_name_placeholder),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Title,
@@ -118,10 +120,10 @@ fun AddTodoScreen(
             )
 
             TraceTextField(
-                label = "Description (Optional)",
+                label = stringResource(R.string.task_description_label),
                 value = uiState.todoDescription,
                 onValueChange = { viewModel.updateTodoDescription(it) },
-                placeholder = "Add more details about your task...",
+                placeholder = stringResource(R.string.task_description_placeholder),
                 singleLine = false,
                 minLines = 4,
             )

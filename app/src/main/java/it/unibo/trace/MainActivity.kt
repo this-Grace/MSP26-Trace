@@ -42,9 +42,15 @@ class MainActivity : FragmentActivity() {
 
             LaunchedEffect(Unit) {
                 UiMessenger.messages.collect { message ->
+                    val text = message.resId?.let { getString(it, *message.formatArgs.toTypedArray()) }
+                        ?: message.text
+                        ?: ""
+                    val actionLabel = message.actionResId?.let { getString(it) }
+                        ?: message.actionLabel
+
                     val result = snackbarHostState.showSnackbar(
-                        message = message.text,
-                        actionLabel = message.actionLabel,
+                        message = text,
+                        actionLabel = actionLabel,
                         duration = message.duration
                     )
                     if (result == SnackbarResult.ActionPerformed) {

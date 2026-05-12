@@ -2,31 +2,32 @@ package it.unibo.trace.utils
 
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.exceptions.HttpRequestException
+import it.unibo.trace.R
 import java.net.UnknownHostException
 
 /**
- * Extension function to map common exceptions to user-friendly messages.
+ * Extension function to map common exceptions to user-friendly message resource IDs.
  */
-fun Throwable.toUserMessage(): String {
+fun Throwable.toUserMessageResId(): Int {
     return when (this) {
         is UnknownHostException, is HttpRequestException -> {
-            "Network error. Please check your internet connection."
+            R.string.error_network_connection
         }
         is RestException -> {
             when (this.statusCode) {
-                401 -> "Unauthorized. Please sign in again."
-                403 -> "Forbidden action."
-                404 -> "Resource not found."
-                409 -> "Conflict occurred (e.g., item already exists)."
-                else -> "Server error (${this.statusCode}). Please try again later."
+                401 -> R.string.error_unauthorized
+                403 -> R.string.error_forbidden
+                404 -> R.string.error_not_found
+                409 -> R.string.error_conflict
+                else -> R.string.error_server
             }
         }
         else -> {
-            val msg = this.localizedMessage ?: "An unexpected error occurred."
+            val msg = this.localizedMessage ?: ""
             if (msg.contains("timeout", ignoreCase = true)) {
-                "Connection timed out. Please try again."
+                R.string.error_timeout
             } else {
-                msg
+                R.string.error_unexpected
             }
         }
     }

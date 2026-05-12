@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.composable.input
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -19,8 +21,8 @@ fun EmailField(
     TraceTextField(
         value = value,
         onValueChange = onValueChange,
-        label = "Email",
-        placeholder = "esempio@email.it",
+        label = stringResource(R.string.email_label),
+        placeholder = stringResource(R.string.email_placeholder),
         modifier = modifier,
         isError = isError,
         leadingIcon = {

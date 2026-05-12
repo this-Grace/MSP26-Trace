@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.screen.home.task.detail
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,12 +57,13 @@ fun TodoDetailScreen(
     Scaffold(
         topBar = {
             TraceTopBar(
-                title = "Task Details",
+                title = stringResource(R.string.task_details_title),
                 onNavigateBack = { navController.popBackStack() },
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack
             )
         }
-    ) { innerPadding ->
+    )
+ { innerPadding ->
         Box(
             modifier = Modifier
                 .padding(innerPadding)
@@ -104,7 +107,7 @@ fun TodoDetailScreen(
                         }
 
                         TraceCard(
-                            title = "Description",
+                            title = stringResource(R.string.description_label),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -118,14 +121,14 @@ fun TodoDetailScreen(
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Text(
-                                    text = "Task details",
+                                    text = stringResource(R.string.task_details_label),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }
 
                             Text(
-                                text = uiState.todo!!.description ?: "No description provided.",
+                                text = uiState.todo!!.description ?: stringResource(R.string.no_description),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = if (uiState.todo!!.description != null)
                                     MaterialTheme.colorScheme.onSurface

@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.screen.auth.resetpassword
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +53,7 @@ fun ResetPasswordScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "New Password",
+                text = stringResource(R.string.reset_password_title),
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold
@@ -61,7 +63,7 @@ fun ResetPasswordScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Please enter your new password below.",
+                text = stringResource(R.string.reset_password_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -70,8 +72,8 @@ fun ResetPasswordScreen(
 
             PasswordField(
                 value = uiState.password,
-                label = "Password",
-                placeholder = "Insert Password",
+                label = stringResource(R.string.password_label),
+                placeholder = stringResource(R.string.password_placeholder),
                 onValueChange = { viewModel.updatePassword(it) }
             )
 
@@ -79,15 +81,15 @@ fun ResetPasswordScreen(
 
             PasswordField(
                 value = uiState.confirmPassword,
-                label = "Confirm Password",
-                placeholder = "Confirm Password",
+                label = stringResource(R.string.confirm_password_label),
+                placeholder = stringResource(R.string.confirm_password_placeholder),
                 onValueChange = { viewModel.updateConfirmPassword(it) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             TraceButton(
-                text = "Update Password",
+                text = stringResource(R.string.update_password_button),
                 isLoading = uiState.isLoading,
                 onClick = { viewModel.updatePassword() }
             )

@@ -22,7 +22,6 @@ import it.unibo.trace.ui.theme.AppTheme
 import androidx.compose.material3.SnackbarDuration
 import it.unibo.trace.utils.BiometricAuthenticator
 import it.unibo.trace.utils.UiMessenger
-import it.unibo.trace.utils.toUserMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +33,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
+import androidx.core.graphics.scale
+import it.unibo.trace.utils.toUserMessageResId
 
 /**
  * UI State for the Profile screen.
@@ -69,8 +69,8 @@ data class ProfileUiState(
      */
     val formattedLastLogin: String
         get() = lastLogin?.format(
-            DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", Locale.ITALY)
-        ) ?: "Never"
+            DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm")
+        ) ?: ""
 }
 
 /**
@@ -174,7 +174,7 @@ class ProfileViewModel(
                 inputStream.close()
 
                 if (originalBitmap == null) {
-                    UiMessenger.show("Could not decode image")
+                    UiMessenger.show(R.string.error_decode_image)
                     return@launch
                 }
 
@@ -184,12 +184,7 @@ class ProfileViewModel(
                 val height = originalBitmap.height
                 val scaledBitmap = if (width > maxDimension || height > maxDimension) {
                     val scale = maxDimension.toFloat() / maxOf(width, height)
-                    Bitmap.createScaledBitmap(
-                        originalBitmap,
-                        (width * scale).toInt(),
-                        (height * scale).toInt(),
-                        true
-                    )
+                    originalBitmap.scale((width * scale).toInt(), (height * scale).toInt())
                 } else {
                     originalBitmap
                 }
@@ -204,7 +199,7 @@ class ProfileViewModel(
                 val timestampedUrl = "$imageUrl?t=${System.currentTimeMillis()}"
 
                 _uiState.update { it.copy(avatarUrl = timestampedUrl) }
-                UiMessenger.show("Photo updated successfully!")
+                UiMessenger.show(R.string.photo_updated_success)
 
                 // Clean up bitmaps
                 if (scaledBitmap != originalBitmap) {
@@ -212,7 +207,7 @@ class ProfileViewModel(
                 }
                 originalBitmap.recycle()
             } catch (e: Exception) {
-                UiMessenger.show(e.toUserMessage())
+                UiMessenger.show(e.toUserMessageResId())
             }
         }
     }
@@ -228,9 +223,9 @@ class ProfileViewModel(
                 userService.deleteAvatar(userId)
                 _uiState.update { it.copy(avatarUrl = null) }
 
-                UiMessenger.show("Photo removed")
+                UiMessenger.show(R.string.photo_removed)
             } catch (e: Exception) {
-                UiMessenger.show(e.toUserMessage())
+                UiMessenger.show(e.toUserMessageResId())
             }
         }
     }
@@ -302,9 +297,9 @@ class ProfileViewModel(
         viewModelScope.launch {
             try {
                 authService.signOut()
-                UiMessenger.show("Logout done successfully!")
+                UiMessenger.show(R.string.logout_success)
             } catch (e: Exception) {
-                UiMessenger.show(e.toUserMessage())
+                UiMessenger.show(e.toUserMessageResId())
             }
         }
     }
@@ -314,7 +309,7 @@ class ProfileViewModel(
      */
     fun deleteAccount() {
         if (_uiState.value.showDeleteDialog && _uiState.value.deleteConfirmEmail != _uiState.value.email) {
-            UiMessenger.show("Email does not match")
+            UiMessenger.show(R.string.error_email_mismatch)
             return
         }
 
@@ -325,9 +320,12 @@ class ProfileViewModel(
                 userService.deleteAvatar(userId)
                 userService.deleteAccount()
                 authService.signOut()
-                UiMessenger.show("Account deleted successfully!", SnackbarDuration.Long)
+                UiMessenger.show(
+                    resId = R.string.account_deleted_success,
+                    duration = SnackbarDuration.Long
+                )
             } catch (e: Exception) {
-                UiMessenger.show(e.toUserMessage())
+                UiMessenger.show(e.toUserMessageResId())
             } finally {
                 _uiState.update { it.copy(isDeleting = false, showDeleteDialog = false) }
             }

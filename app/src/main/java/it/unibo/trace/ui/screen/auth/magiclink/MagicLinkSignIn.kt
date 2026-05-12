@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.screen.auth.magiclink
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +45,7 @@ fun MagicLinkSignInScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Magic Link",
+                text = stringResource(R.string.magic_link_title),
                 style = MaterialTheme.typography.displayMedium.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold
@@ -53,7 +55,7 @@ fun MagicLinkSignInScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Enter your email and we'll send you a link to sign in instantly.",
+                text = stringResource(R.string.magic_link_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center
@@ -69,7 +71,7 @@ fun MagicLinkSignInScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             TraceButton(
-                text = if (uiState.isSent) "Resend Link" else "Send Link",
+                text = if (uiState.isSent) stringResource(R.string.resend_link) else stringResource(R.string.send_link),
                 isLoading = uiState.isLoading,
                 onClick = { viewModel.sendMagicLink() }
             )
@@ -77,7 +79,7 @@ fun MagicLinkSignInScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Back to Sign In",
+                text = stringResource(R.string.back_to_sign_in),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,

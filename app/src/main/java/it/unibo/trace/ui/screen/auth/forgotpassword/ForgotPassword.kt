@@ -1,5 +1,7 @@
 package it.unibo.trace.ui.screen.auth.forgotpassword
 
+import androidx.compose.ui.res.stringResource
+import it.unibo.trace.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,7 +46,7 @@ fun ForgotPasswordScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Forgot Password",
+                text = stringResource(R.string.forgot_password_title),
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold
@@ -54,7 +56,7 @@ fun ForgotPasswordScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Enter your email address and we will send you a link to reset your password.",
+                text = stringResource(R.string.forgot_password_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -71,7 +73,7 @@ fun ForgotPasswordScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             TraceButton(
-                text = "Send Reset Link",
+                text = stringResource(R.string.send_reset_link),
                 isLoading = uiState.isLoading,
                 onClick = { viewModel.sendResetLink() }
             )
@@ -80,12 +82,12 @@ fun ForgotPasswordScreen(
 
             Row {
                 Text(
-                    "Remember password? ",
+                    stringResource(R.string.remember_password),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    "Sign In",
+                    stringResource(R.string.sign_in),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary

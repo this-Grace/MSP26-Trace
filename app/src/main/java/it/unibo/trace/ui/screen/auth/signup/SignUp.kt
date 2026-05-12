@@ -48,7 +48,7 @@ fun SignUpScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Join " + stringResource(R.string.app_name),
+                text = stringResource(R.string.join_trace, stringResource(R.string.app_name)),
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold
@@ -66,8 +66,8 @@ fun SignUpScreen(
 
             PasswordField(
                 value = uiState.password,
-                label = "Password",
-                placeholder = "Insert Password",
+                label = stringResource(R.string.password_label),
+                placeholder = stringResource(R.string.password_placeholder),
                 onValueChange = { viewModel.updatePassword(it) }
             )
 
@@ -75,15 +75,15 @@ fun SignUpScreen(
 
             PasswordField(
                 value = uiState.confirmPassword,
-                label = "Confirm Password",
-                placeholder = "Confirm Password",
+                label = stringResource(R.string.confirm_password_label),
+                placeholder = stringResource(R.string.confirm_password_placeholder),
                 onValueChange = { viewModel.updateConfirmPassword(it) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             TraceButton(
-                text = "Sign Up",
+                text = stringResource(R.string.sign_up),
                 isLoading = uiState.isLoading,
                 onClick = { viewModel.signUp(onSuccess = {
                     navController.popBackStack()
@@ -92,12 +92,12 @@ fun SignUpScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TraceSeparator(text = "OR")
+            TraceSeparator(text = stringResource(R.string.or_separator))
 
             Spacer(modifier = Modifier.height(16.dp))
 
             SocialSignInButton(
-                text = "Sign in with GitHub",
+                text = stringResource(R.string.sign_in_github),
                 iconRes = R.drawable.ic_github_logo,
                 onClick = { viewModel.signUpWithGithub() }
             )
@@ -106,11 +106,11 @@ fun SignUpScreen(
 
             Row {
                 Text(
-                    "Already have an account? ",
+                    stringResource(R.string.already_have_account),
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    "Sign In",
+                    stringResource(R.string.sign_in),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {

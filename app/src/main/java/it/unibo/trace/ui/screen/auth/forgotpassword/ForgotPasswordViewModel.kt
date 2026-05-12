@@ -1,5 +1,6 @@
 package it.unibo.trace.ui.screen.auth.forgotpassword
 
+import it.unibo.trace.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.unibo.trace.data.supabase.service.AuthService
@@ -36,7 +37,7 @@ class ForgotPasswordViewModel(private val authService: AuthService) : ViewModel(
     fun sendResetLink() {
         val email = _uiState.value.email
         if (email.isBlank()) {
-            UiMessenger.show("Please enter your email")
+            UiMessenger.show(R.string.error_enter_email)
             return
         }
 
@@ -44,14 +45,13 @@ class ForgotPasswordViewModel(private val authService: AuthService) : ViewModel(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 authService.sendResetPasswordEmail(email)
-                UiMessenger.show("Instructions sent! Please check your inbox.", SnackbarDuration.Long)
+                UiMessenger.show(R.string.reset_link_sent_success, duration = SnackbarDuration.Long)
             } catch (e: Exception) {
-                val msg = if (e.message?.contains("network", ignoreCase = true) == true) {
-                    "Network error, please check your connection"
+                if (e.message?.contains("network", ignoreCase = true) == true) {
+                    UiMessenger.show(R.string.error_network)
                 } else {
-                    "Failed to send reset link. Verify your email."
+                    UiMessenger.show(R.string.error_reset_failed)
                 }
-                UiMessenger.show(msg)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
             }
