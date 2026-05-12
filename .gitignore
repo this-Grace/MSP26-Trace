@@ -13,6 +13,7 @@ local.properties
 # Ignore Android/Gradle build artifacts
 .gradle/
 build/
+release/
 captures/
 .externalNativeBuild/
 .cxx/
