@@ -5,13 +5,17 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Github
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.providers.builtin.OTP
+import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.UserInfo
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Service class handling authentication logic via Supabase Auth.
  */
 class AuthService(supabase: SupabaseClient) {
     private val auth = supabase.auth
+
+    val sessionStatus: StateFlow<SessionStatus> = auth.sessionStatus
 
     /**
      * Signs in a user using email and password.

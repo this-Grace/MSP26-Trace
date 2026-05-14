@@ -117,7 +117,8 @@ fun ProfileScreen(
             onRemovePhoto = {
                 viewModel.setShowImagePicker(false)
                 viewModel.removeProfilePicture()
-            }
+            },
+            canRemovePhoto = uiState.avatarUrl != null
         )
     }
 
@@ -213,10 +214,8 @@ fun ProfileScreen(
                     )
                 }
 
-                val lastLoginText = if (uiState.formattedLastLogin.isEmpty()) {
+                val lastLoginText = uiState.formattedLastLogin.ifEmpty {
                     stringResource(R.string.never)
-                } else {
-                    uiState.formattedLastLogin
                 }
 
                 Text(

@@ -111,7 +111,7 @@ fun ProtectedRoute(
     when (sessionStatus) {
         is SessionStatus.Authenticated -> content()
         is SessionStatus.NotAuthenticated -> {
-            LaunchedEffect(Unit) {
+            LaunchedEffect(sessionStatus) {
                 navController.navigate(Route.Login) {
                     popUpTo(0) { inclusive = true }
                 }
@@ -130,7 +130,9 @@ fun UnauthenticatedRoute(
     when (sessionStatus) {
         is SessionStatus.NotAuthenticated -> content()
         is SessionStatus.Authenticated -> {
-            LaunchedEffect(Unit) {
+            LaunchedEffect(sessionStatus) {
+                // Only navigate to Home if we are currently on an unauthenticated route
+                // and not already navigating elsewhere.
                 navController.navigate(Route.Home) {
                     popUpTo(0) { inclusive = true }
                 }
