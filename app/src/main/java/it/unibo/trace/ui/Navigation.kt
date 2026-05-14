@@ -127,14 +127,17 @@ fun UnauthenticatedRoute(
     navController: NavHostController,
     content: @Composable () -> Unit
 ) {
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
     when (sessionStatus) {
         is SessionStatus.NotAuthenticated -> content()
         is SessionStatus.Authenticated -> {
             LaunchedEffect(sessionStatus) {
                 // Only navigate to Home if we are currently on an unauthenticated route
                 // and not already navigating elsewhere.
-                navController.navigate(Route.Home) {
-                    popUpTo(0) { inclusive = true }
+                if (currentRoute != Route.ResetPassword::class.qualifiedName) {
+                    navController.navigate(Route.Home) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             }
         }
