@@ -26,7 +26,6 @@ import androidx.navigation.NavHostController
 import it.unibo.trace.R
 import it.unibo.trace.ui.composable.TraceTopBar
 import org.koin.androidx.compose.koinViewModel
-import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
@@ -76,9 +75,6 @@ fun MapScreen(
     }
 
     LaunchedEffect(Unit) {
-        Configuration.getInstance().userAgentValue = context.packageName
-        Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", 0))
-
         val isGranted = ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
