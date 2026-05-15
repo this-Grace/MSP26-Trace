@@ -3,6 +3,7 @@ package it.unibo.trace.ui.screen.home.profile
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.Brightness4
 import androidx.compose.material.icons.rounded.BrightnessAuto
 import androidx.compose.material.icons.rounded.LightMode
@@ -43,6 +45,7 @@ import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import it.unibo.trace.R
+import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.TraceInfoItem
 import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.composable.button.TraceButton
@@ -178,6 +181,17 @@ fun ProfileScreen(
                     label = stringResource(R.string.login_method_label),
                     value = uiState.loginType,
                     icon = Icons.Default.Badge
+                )
+            }
+
+            TraceCard(title = stringResource(R.string.map_info)) {
+                TraceInfoItem(
+                    label = stringResource(R.string.map_view_label),
+                    value = stringResource(R.string.map_view_description),
+                    icon = Icons.Default.LocationOn,
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.Map)
+                    }
                 )
             }
 
