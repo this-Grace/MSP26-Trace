@@ -41,6 +41,9 @@
     <string name="remove_photo">Elimina foto</string>
     <string name="email_placeholder">esempio@email.it</string>
     <string name="never">Mai</string>
+    <string name="map_info">Informazioni Mappa</string>
+    <string name="map_view_label">Mappa Posizione</string>
+    <string name="map_view_description">Visualizza dove ti trovi</string>
 
     <!-- Add Task Screen -->
     <string name="add_task_title">Nuovo Task</string>
