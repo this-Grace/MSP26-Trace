@@ -15,10 +15,12 @@ import it.unibo.trace.ui.screen.auth.signin.SignInViewModel
 import it.unibo.trace.ui.screen.auth.signup.SignUpViewModel
 import it.unibo.trace.ui.screen.auth.resetpassword.ResetPasswordViewModel
 import it.unibo.trace.ui.screen.auth.magiclink.MagicLinkViewModel
+import it.unibo.trace.ui.screen.home.map.MapViewModel
 import it.unibo.trace.ui.screen.home.profile.ProfileViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.osmdroid.views.MapView
 
 val networkModule = module {
     single<SupabaseClient> { supabase }
@@ -42,4 +44,5 @@ val viewModelModule = module {
     viewModel { ForgotPasswordViewModel(get()) }
     viewModel { ResetPasswordViewModel(get()) }
     viewModel { MagicLinkViewModel(get()) }
+    viewModel { MapViewModel() }
 }

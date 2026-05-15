@@ -3,6 +3,7 @@ package it.unibo.trace.ui.screen.home.profile
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.Brightness4
 import androidx.compose.material.icons.rounded.BrightnessAuto
 import androidx.compose.material.icons.rounded.LightMode
@@ -43,6 +45,7 @@ import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import it.unibo.trace.R
+import it.unibo.trace.ui.Route
 import it.unibo.trace.ui.composable.TraceInfoItem
 import it.unibo.trace.ui.composable.TraceTopBar
 import it.unibo.trace.ui.composable.button.TraceButton
@@ -54,6 +57,13 @@ import it.unibo.trace.ui.theme.AppTheme
 import it.unibo.trace.utils.BiometricAuthenticator
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Profile screen displaying user account info, map preview, and app settings.
+ *
+ * @param navController Navigation controller for screen navigation
+ * @param modifier Modifier for the composable layout
+ * @param viewModel ProfileViewModel injected via Koin
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -117,7 +127,8 @@ fun ProfileScreen(
             onRemovePhoto = {
                 viewModel.setShowImagePicker(false)
                 viewModel.removeProfilePicture()
-            }
+            },
+            canRemovePhoto = uiState.avatarUrl != null
         )
     }
 
@@ -180,6 +191,17 @@ fun ProfileScreen(
                 )
             }
 
+            TraceCard(title = stringResource(R.string.map_info)) {
+                TraceInfoItem(
+                    label = stringResource(R.string.map_view_label),
+                    value = stringResource(R.string.map_view_description),
+                    icon = Icons.Default.LocationOn,
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.Map)
+                    }
+                )
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             Column(
@@ -213,10 +235,8 @@ fun ProfileScreen(
                     )
                 }
 
-                val lastLoginText = if (uiState.formattedLastLogin.isEmpty()) {
+                val lastLoginText = uiState.formattedLastLogin.ifEmpty {
                     stringResource(R.string.never)
-                } else {
-                    uiState.formattedLastLogin
                 }
 
                 Text(

@@ -15,6 +15,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.trace.R
 import it.unibo.trace.data.ThemeRepository
 import it.unibo.trace.data.supabase.service.AuthService
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -88,8 +90,8 @@ class ProfileViewModel(
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private var tempUri: Uri?
-        get() = savedStateHandle.get<String>("temp_uri")?.let { Uri.parse(it) }
-        set(value) { savedStateHandle["temp_uri"] = value?.toString() }
+        get() = savedStateHandle.get<Uri>("temp_uri")
+        set(value) { savedStateHandle["temp_uri"] = value }
 
     val theme: StateFlow<AppTheme> = themeRepository.themeFlow
         .stateIn(
@@ -107,6 +109,8 @@ class ProfileViewModel(
      */
     private fun loadUserProfile() {
         viewModelScope.launch {
+            // Wait for session to be authenticated before loading profile
+            authService.sessionStatus.first { it is SessionStatus.Authenticated }
             try {
                 userService.getProfileInfo()?.let { profile ->
                     _uiState.update {
@@ -119,7 +123,7 @@ class ProfileViewModel(
                     }
                 }
             } catch (e: Exception) {
-                // Silently fail or log, as getProfileInfo handles its own logical errors
+                // Silently fail or log
             }
         }
     }
@@ -155,8 +159,9 @@ class ProfileViewModel(
      * Prepares a temporary file and launches the camera.
      */
     fun startCamera(context: Context, launcher: ManagedActivityResultLauncher<Uri, Boolean>) {
-        tempUri = getTmpUri(context)
-        tempUri?.let { launcher.launch(it) }
+        val uri = getTmpUri(context)
+        tempUri = uri
+        launcher.launch(uri)
     }
 
     /**
@@ -172,49 +177,57 @@ class ProfileViewModel(
     fun uploadProfilePicture(uri: Uri, contentResolver: ContentResolver) {
         viewModelScope.launch {
             try {
-                val userId = authService.getCurrentUser()?.id ?: return@launch
-                val originalBitmap = contentResolver.openInputStream(uri)?.use { inputStream ->
-                    BitmapFactory.decodeStream(inputStream)
+                // Wait for authenticated session if not yet ready
+                if (authService.sessionStatus.value !is SessionStatus.Authenticated) {
+                    authService.sessionStatus.first { it is SessionStatus.Authenticated }
                 }
-
-                if (originalBitmap == null) {
-                    UiMessenger.show(R.string.error_decode_image)
-                    return@launch
-                }
-
-                // Scale down if necessary
-                val maxDimension = 800
-                val width = originalBitmap.width
-                val height = originalBitmap.height
-                val scaledBitmap = if (width > maxDimension || height > maxDimension) {
-                    val scale = maxDimension.toFloat() / maxOf(width, height)
-                    originalBitmap.scale((width * scale).toInt(), (height * scale).toInt())
-                } else {
-                    originalBitmap
-                }
-
-                val bytes = ByteArrayOutputStream().use { outputStream ->
-                    // Use JPEG and 70 quality for compression to keep file size small
-                    scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-                    outputStream.toByteArray()
-                }
-
-                val imageUrl = userService.uploadAvatar(userId, bytes)
-                userService.updateAvatarUrl(imageUrl)
-                val timestampedUrl = "$imageUrl?t=${System.currentTimeMillis()}"
-
-                _uiState.update { it.copy(avatarUrl = timestampedUrl) }
-                UiMessenger.show(R.string.photo_updated_success)
-
-                // Clean up bitmaps
-                if (scaledBitmap != originalBitmap) {
-                    scaledBitmap.recycle()
-                }
-                originalBitmap.recycle()
+                performUpload(uri, contentResolver)
             } catch (e: Exception) {
                 UiMessenger.show(e.toUserMessageResId())
             }
         }
+    }
+
+    private suspend fun performUpload(uri: Uri, contentResolver: ContentResolver) {
+        val userId = authService.getCurrentUser()?.id ?: return
+        val originalBitmap = contentResolver.openInputStream(uri)?.use { inputStream ->
+            BitmapFactory.decodeStream(inputStream)
+        }
+
+        if (originalBitmap == null) {
+            UiMessenger.show(R.string.error_decode_image)
+            return
+        }
+
+        // Scale down if necessary
+        val maxDimension = 800
+        val width = originalBitmap.width
+        val height = originalBitmap.height
+        val scaledBitmap = if (width > maxDimension || height > maxDimension) {
+            val scale = maxDimension.toFloat() / maxOf(width, height)
+            originalBitmap.scale((width * scale).toInt(), (height * scale).toInt())
+        } else {
+            originalBitmap
+        }
+
+        val bytes = ByteArrayOutputStream().use { outputStream ->
+            // Use JPEG and 70 quality for compression to keep file size small
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+            outputStream.toByteArray()
+        }
+
+        val imageUrl = userService.uploadAvatar(userId, bytes)
+        userService.updateAvatarUrl(imageUrl)
+        val timestampedUrl = "$imageUrl?t=${System.currentTimeMillis()}"
+
+        _uiState.update { it.copy(avatarUrl = timestampedUrl) }
+        UiMessenger.show(R.string.photo_updated_success)
+
+        // Clean up bitmaps
+        if (scaledBitmap != originalBitmap) {
+            scaledBitmap.recycle()
+        }
+        originalBitmap.recycle()
     }
 
     /**
@@ -241,7 +254,6 @@ class ProfileViewModel(
     fun getTmpUri(context: Context): Uri {
         val tmpFile = File.createTempFile("avatar_", ".jpg", context.cacheDir).apply {
             createNewFile()
-            deleteOnExit()
         }
         return FileProvider.getUriForFile(
             context,

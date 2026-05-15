@@ -44,6 +44,9 @@
     <string name="remove_photo">Delete photo</string>
     <string name="email_placeholder">example@email.com</string>
     <string name="never">Never</string>
+    <string name="map_info">Map Information</string>
+    <string name="map_view_label">Your Position</string>
+    <string name="map_view_description">See where you are</string>
 
     <!-- Add Task Screen -->
     <string name="add_task_title">New Task</string>

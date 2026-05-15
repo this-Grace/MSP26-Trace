@@ -30,7 +30,8 @@ fun ImageSourcePickerSheet(
     onDismiss: () -> Unit,
     onTakePhoto: () -> Unit,
     onChooseGallery: () -> Unit,
-    onRemovePhoto: () -> Unit
+    onRemovePhoto: () -> Unit,
+    canRemovePhoto: Boolean = true
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss
@@ -66,21 +67,23 @@ fun ImageSourcePickerSheet(
                 )
             }
 
-            TextButton(
-                onClick = onRemovePhoto,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp),
-                    tint = MaterialTheme.colorScheme.error
-                )
-                Text(
-                    text = stringResource(R.string.remove_photo),
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Medium
-                )
+            if (canRemovePhoto) {
+                TextButton(
+                    onClick = onRemovePhoto,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 8.dp),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Text(
+                        text = stringResource(R.string.remove_photo),
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }

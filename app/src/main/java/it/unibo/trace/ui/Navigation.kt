@@ -17,6 +17,7 @@ import it.unibo.trace.ui.screen.auth.signin.SignInScreen
 import it.unibo.trace.ui.screen.auth.magiclink.MagicLinkSignInScreen
 import it.unibo.trace.ui.screen.auth.signup.SignUpScreen
 import it.unibo.trace.ui.screen.auth.resetpassword.ResetPasswordScreen
+import it.unibo.trace.ui.screen.home.map.MapScreen
 import it.unibo.trace.ui.screen.home.task.add.AddTodoScreen
 import it.unibo.trace.ui.screen.home.task.detail.TodoDetailScreen
 import kotlinx.serialization.Serializable
@@ -31,6 +32,7 @@ sealed interface Route {
     @Serializable data object Home : Route
     @Serializable data object Profile : Route
     @Serializable data object AddTodo : Route
+    @Serializable data object Map : Route
     @Serializable data class TodoDetail(val id: Long) : Route
 }
 
@@ -98,6 +100,11 @@ fun NavGraph(
             ProtectedRoute(isAuthenticated, navController) {
                 val detail = backStackEntry.toRoute<Route.TodoDetail>()
                 TodoDetailScreen(navController, detail.id)
+            }
+        }
+        composable<Route.Map> {
+            ProtectedRoute(sessionStatus, navController) {
+                MapScreen(navController)
             }
         }
     }
