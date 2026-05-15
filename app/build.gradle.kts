@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.coil.svg)
     implementation(libs.supabase.storage)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.osmdroid.android)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
