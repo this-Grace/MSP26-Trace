@@ -57,6 +57,13 @@ import it.unibo.trace.ui.theme.AppTheme
 import it.unibo.trace.utils.BiometricAuthenticator
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Profile screen displaying user account info, map preview, and app settings.
+ *
+ * @param navController Navigation controller for screen navigation
+ * @param modifier Modifier for the composable layout
+ * @param viewModel ProfileViewModel injected via Koin
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(

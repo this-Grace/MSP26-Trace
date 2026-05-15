@@ -27,10 +27,19 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
+/**
+ * Map screen displaying user location using OSMDroid.
+ *
+ * Handles location permissions, map initialization, and current location overlay.
+ *
+ * @param navController Navigation controller for back navigation
+ * @param viewModel MapScreen ViewModel injected via Koin
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
     navController: NavHostController,
+    modifier: Modifier = Modifier,
     viewModel: MapViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -62,6 +71,7 @@ fun MapScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TraceTopBar(
                 title = stringResource(R.string.map_view_label),
