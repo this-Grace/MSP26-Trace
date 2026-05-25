@@ -1,6 +1,30 @@
 # MSP26-TRACE
 A simple and organized Todo application built with Kotlin, Jetpack Compose, and Supabase.
 
+## Presentation Slides
+
+Below is a gallery of the project's presentation slides.
+
+### Title Slide
+<p align="center">
+  <img src="slides/Trace_1.png" alt="Slide 1" width="700"/>
+</p>
+
+### More Slides
+<details>
+<summary>Click to expand for the full presentation</summary>
+<br>
+
+<p align="center">
+  <img src="slides/Trace-2.png" alt="Slide 2" width="700"/>
+  <img src="slides/Trace-3.png" alt="Slide 3" width="700"/>
+  <img src="slides/Trace-4.png" alt="Slide 4" width="700"/>
+  <img src="slides/Trace-5.png" alt="Slide 5" width="700"/>
+</p>
+</details>
+
+---
+
 ## Setup Instructions
 To get the application running locally, follow these steps:
 
@@ -62,7 +86,7 @@ To enable GitHub Login:
 
 ## Team Members
 
-#### Grazia Bochdanovits
+#### Grazia Bochdanovits de Kavna
 - **GitHub**: [this-Grace](https://github.com/this-Grace)
 - **Email**: [grazia.bochdanovits@studio.unibo.it](mailto:grazia.bochdanovits@studio.unibo.it)
 
