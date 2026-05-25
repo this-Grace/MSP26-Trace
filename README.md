@@ -7,7 +7,7 @@ Below is a gallery of the project's presentation slides.
 
 ### Title Slide
 <p align="center">
-  <img src="slides/Trace_1.png" alt="Slide 1" width="700"/>
+  <img src="slides/Trace-1.png" alt="Slide 1" width="700"/>
 </p>
 
 ### More Slides
