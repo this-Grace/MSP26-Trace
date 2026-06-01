@@ -64,6 +64,8 @@ To enable GitHub Login:
 
 Below is a gallery of the project's presentation slides.
 
+**Mockups:** [View the mockups here](https://www.figma.com/design/1NjQgD9Bf75vzC5Gzau5Ip/MOBILE26)
+
 ### Title Slide
 <p align="center">
   <img src="slides/Trace-1.png" alt="Slide 1" width="700"/>
