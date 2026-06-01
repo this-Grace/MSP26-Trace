@@ -1,30 +1,6 @@
 # MSP26-TRACE
 A simple and organized Todo application built with Kotlin, Jetpack Compose, and Supabase.
 
-## Presentation Slides
-
-Below is a gallery of the project's presentation slides.
-
-### Title Slide
-<p align="center">
-  <img src="slides/Trace-1.png" alt="Slide 1" width="700"/>
-</p>
-
-### More Slides
-<details>
-<summary>Click to expand for the full presentation</summary>
-<br>
-
-<p align="center">
-  <img src="slides/Trace-2.png" alt="Slide 2" width="700"/>
-  <img src="slides/Trace-3.png" alt="Slide 3" width="700"/>
-  <img src="slides/Trace-4.png" alt="Slide 4" width="700"/>
-  <img src="slides/Trace-5.png" alt="Slide 5" width="700"/>
-</p>
-</details>
-
----
-
 ## Setup Instructions
 To get the application running locally, follow these steps:
 
@@ -83,6 +59,28 @@ To enable GitHub Login:
 4. In the Supabase Dashboard, go to **Authentication > Providers > GitHub**.
 5. Enable the provider and enter your GitHub **Client ID** and **Client Secret**.
 6. Ensure you have added the redirect URI `it.unibo.trace://login-callback` in the **Authentication > URL Configuration** section of Supabase.
+
+## Presentation Slides
+
+Below is a gallery of the project's presentation slides.
+
+### Title Slide
+<p align="center">
+  <img src="slides/Trace-1.png" alt="Slide 1" width="700"/>
+</p>
+
+### More Slides
+<details>
+<summary>Click to expand for the full presentation</summary>
+<br>
+
+<p align="center">
+  <img src="slides/Trace-2.png" alt="Slide 2" width="700"/>
+  <img src="slides/Trace-3.png" alt="Slide 3" width="700"/>
+  <img src="slides/Trace-4.png" alt="Slide 4" width="700"/>
+  <img src="slides/Trace-5.png" alt="Slide 5" width="700"/>
+</p>
+</details>
 
 ## Team Members
 
